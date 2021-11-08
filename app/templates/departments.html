@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% for department in departments %}
+        <div class="content-section">
+            <h1>{{ department.title }}</h1>
+            <p> Salary: {{ department.salary }}$</p>
+        </div>
+    {% endfor %}
+{% endblock %}
