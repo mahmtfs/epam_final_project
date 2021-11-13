@@ -11,7 +11,7 @@ app.register_blueprint(general)
 app.register_blueprint(auth)
 
 
-from .extensions import db, bcr, login_manager
+from .extensions import db, bcr, login_manager, migrate
 
 
 db.init_app(app)
@@ -19,6 +19,7 @@ bcr.init_app(app)
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'info'
+migrate.init_app(app, db)
 
 
 from flask_admin import Admin, AdminIndexView
