@@ -1,7 +1,11 @@
-from app.db.db import db
+from flask_login import UserMixin
+from app.extensions import db
 
 
-class Employee(db.Model):
+class Employee(db.Model, UserMixin):
+    __tablename__ = 'employee'
+    __searchable__ = ['firstname', 'lastname']
+
     id = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(20), nullable=False)
     lastname = db.Column(db.String(20), nullable=False)
@@ -12,6 +16,9 @@ class Employee(db.Model):
 
 
 class Department(db.Model):
+    __tablename__ = 'department'
+    __searchable__ = ['title']
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), unique=True, nullable=False)
     salary = db.Column(db.Numeric, nullable=False)
