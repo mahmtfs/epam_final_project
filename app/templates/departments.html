@@ -1,10 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div class="col-sm-3 blog-sidebar" style="position: fixed; width: min-content">
+        <form method="POST" action="">
+            <h4>Search</h4>
+            <fieldset class="form-group">
+                <div class="form-group">
+                    {{ form.search(class="form-control form-control-lg") }}
+                </div>
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+    <div class="container mt-3" style="max-width: 600px;">
     {% for department in departments %}
-        <div class="content-section">
-            <h1>{{ department.title }}</h1>
-            <p> Salary: {{ department.salary }}$</p>
-        </div>
+        <a class="text-dark" href="{{ url_for('general.department_page', department_id=department.id) }}"
+           style="text-decoration: none">
+            <div class="content-section d-flex justify-content-between"
+                 style="min-width: 200px;">
+                <div>{{ department.title }}</div>
+                <div>Avg. salary: {{ department.salary }}$</div>
+            </div>
+            {% if current_user.__class__.__name__ != 'AnonymousUserMixin' %}
+                {% if current_user.role.id == 4 %}
+                    <a class="btn btn-primary" href="/admin/department/edit/?id={{ department.id }}&url=%2Fadmin%2Fdepartment%2F">
+                        Edit
+                    </a>
+                {% endif %}
+            {% else %}
+            {% endif %}
+        </a>
     {% endfor %}
+    </div>
 {% endblock %}
