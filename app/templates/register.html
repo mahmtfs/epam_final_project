@@ -38,6 +38,19 @@
                         {% endif %}
                     </div>
                     <div class="form-group">
+                        {{ form.birth_date.label(class="form-control-label") }}
+                        {% if form.birth_date.errors %}
+                            {{ form.birth_date(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.birth_date.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.birth_date(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
                         {{ form.email.label(class="form-control-label") }}
                         {% if form.email.errors %}
                             {{ form.email(class="form-control form-control-lg is-invalid") }}

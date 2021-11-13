@@ -2,6 +2,7 @@ from flask import flash, redirect, url_for, Blueprint, render_template, request
 from flask_wtf import FlaskForm
 from flask_login import login_user, current_user, logout_user, login_required
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
+from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 from app.extensions import db, bcr, login_manager
 from app.models import Department, Employee, Role
@@ -21,6 +22,8 @@ class RegistrationForm(FlaskForm):
                         validators=[DataRequired(), Length(max=20)])
     lastname = StringField('Last Name',
                         validators=[DataRequired(), Length(max=20)])
+    birth_date = DateField('Date Of Birth',
+                        validators=[DataRequired()])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
     password = PasswordField('Password',
@@ -63,6 +66,7 @@ def register():
         role = Role.query.filter_by(name='regular').first()
         employee = Employee(firstname=form.firstname.data,
                             lastname=form.lastname.data,
+                            birth_date=form.birth_date.data,
                             email=form.email.data,
                             password=hashed_password,
                             department_id=dep.id,
