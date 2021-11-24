@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container mt-3" style="max-width: 600px;">
+        <form method="POST" action="">
+            {% if form %}
+                {{ form.hidden_tag() }}
+            {% endif %}
+                <div class="content-section"
+                     style="min-width: 200px;">
+                    <h1>Request #{{ request.id }}</h1>
+                    <p>
+                        Sender: {{ sender.firstname }} {{ sender.lastname }} ({{ sender.id }})<br>
+                        {% if change_department %}
+                            Change Department To: {{ change_department.title }}<br>
+                        {% endif %}
+                        {% if request.increase_salary %}
+                            Increase Salary By: {{ request.increase_salary }}%<br>
+                        {% endif %}
+                    </p>
+                </div>
+            {% if form %}
+                <div class="form-group form-inline">
+                    {{ form.accept(class="btn btn-outline-success") }}
+                    {{ form.decline(class="btn btn-outline-danger") }}
+                </div>
+            {% endif %}
+        </form>
+    </div>
+{% endblock %}
