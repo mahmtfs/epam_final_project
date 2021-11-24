@@ -22,5 +22,7 @@ jobs:
     - name: Test with unittest
       run: |
         nohup python rest.py
+        sleep 5s
         curl 127.0.0.1:5000
+        sleep 5s
         python3 -m unittest discover tests
