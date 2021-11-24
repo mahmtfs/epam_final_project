@@ -23,4 +23,5 @@ jobs:
       run: |
         python3 rest.py
         python3 -m unittest discover tests
-        sudo service python3 stop
+        python3 import request
+        python3 request.environ.get('werkzeug.server.shutdown')
