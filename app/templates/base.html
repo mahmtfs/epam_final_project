@@ -29,6 +29,11 @@
                             About
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('general.requests_page') }}">
+                            Requests
+                        </a>
+                    </li>
                     {% if current_user.__class__.__name__ != 'AnonymousUserMixin' %}
                         {% if current_user.role.id == 4 %}
                             <li class="nav-item">
@@ -41,6 +46,10 @@
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">
+                    <li class="nav-item">
+                        {% block search %}
+                        {% endblock %}
+                    </li>
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('auth.profile') }}">Profile</a>

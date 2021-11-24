@@ -1,21 +1,42 @@
 {% extends "base.html" %}
 
-{% block content %}
-    {% for employee in employees %}
-        <a class="text-dark" href="{{ url_for('general.employee_page', employee_id=employee.id) }}" style="text-decoration: none">
-            <div class="content-section d-flex justify-content-between"
-                 style="min-width: 200px; position: relative; overflow: auto;">
-                <div>{{ employee.firstname }}</div>
-                <div>{{ employee.lastname }}</div>
+{% block search %}
+    <form class="form-inline" method="POST">
+        <fieldset class="form-group">
+            <div class="form-group">
+                {{ form.search(class="form-control") }}
             </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </fieldset>
+    </form>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-3" style="max-width: 600px;">
+    {% if not employees %}
+        <p class="text-center">There are currently no employees in this department.</p>
+    {% else %}
+    {% for employee in employees %}
+        <div style="float: right">
             {% if current_user.__class__.__name__ != 'AnonymousUserMixin' %}
                 {% if current_user.role.id == 4 %}
-                    <a class="btn btn-primary" href="/admin/employee/edit/?id={{ employee.id }}&url=%2Fadmin%2Fdepartment%2F">
+                    <a class="btn btn-primary"
+                        href="/admin/employee/edit/?id={{ employee.id }}&url=%2Fadmin%2Fdepartment%2F">
                         Edit
                     </a>
                 {% endif %}
-            {% else %}
             {% endif %}
+        </div>
+        <a class="text-dark" href="{{ url_for('general.employee_page', employee_id=employee.id) }}" style="text-decoration: none">
+            <div class="content-section d-flex justify-content-between"
+                 style="min-width: 200px; position: relative; overflow: auto;">
+                <div>Name: {{ employee.firstname }} {{ employee.lastname }} ({{ employee.id }})</div>
+                <div>Born: {{ employee.birth_date }} Salary: {{ employee.salary }}$</div>
+            </div>
         </a>
     {% endfor %}
+    {% endif %}
+    </div>
 {% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block search %}
+    <form class="form-inline" method="POST">
+        <fieldset class="form-group">
+            <div class="form-group">
+                {{ form.search(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </fieldset>
+    </form>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-3" style="max-width: 600px;">
+    {% if not requests %}
+        <p class="text-center">There are currently no requests.</p>
+    {% else %}
+    {% for request in requests %}
+        <a class="text-dark" href="{{ url_for('general.request_page', request_id=request[0].id) }}"
+           style="text-decoration: none">
+            <div class="content-section d-flex justify-content-between"
+                 style="min-width: 200px;">
+                <div>Sender: {{ request[1].firstname }} {{ request[1].lastname }} ({{ request[1].id }})</div>
+                <div>Status:
+                    {% if request[0].status == 0 %}
+                        <b style="color:blue">Processing</b>
+                    {% else %}
+                        {% if request[0].status == 1 %}
+                            <b style="color:green">Accepted</b>
+                        {% else %}
+                            <b style="color:red">Declined</b>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+    {% endif %}
+    </div>
+{% endblock %}

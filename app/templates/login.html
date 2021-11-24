@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="form content-section">
+    <div class="form content-section container mt-3">
         <div class="text-center form-group">
             <label style="font-size: 24px">
                 Welcome again!
@@ -46,7 +46,7 @@
                     {{ form.submit(class="btn btn-outline-info") }}
                 </div>
                 <small class="text-muted ml-2">
-                    <a href="#">Forgot Password?</a>
+                    <a href="{{ url_for('auth.reset_request') }}">Forgot Password?</a>
                 </small>
             </form>
         </div>
