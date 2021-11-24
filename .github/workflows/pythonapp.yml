@@ -21,7 +21,4 @@ jobs:
         pip install -r requirements.txt
     - name: Test with unittest
       run: |
-        python3 rest.py
         python3 -m unittest discover tests
-        python3 import request
-        python3 request.environ.get('werkzeug.server.shutdown')
