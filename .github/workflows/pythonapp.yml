@@ -21,6 +21,6 @@ jobs:
         pip install -r requirements.txt
     - name: Test with unittest
       run: |
-        python3 rest.py
+        nohup python -m rest &
         curl http://127.0.0.1:5000/
         python3 -m unittest discover tests
