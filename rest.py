@@ -234,4 +234,4 @@ api.add_resource(Dep, '/dep/<int:department_id>')
 api.add_resource(Req, '/req/<int:request_id>')
 
 if __name__ == '__main__':
-    app.run(debug=DEBUG, port=80)
+    app.run(host="localhost", port=8000, debug=DEBUG)
