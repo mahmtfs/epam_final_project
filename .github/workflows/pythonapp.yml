@@ -22,5 +22,5 @@ jobs:
     - name: Test with unittest
       run: |
         nohup python3 rest.py
-        sleep 5s
+        sleep 20
         python3 -m unittest discover tests
