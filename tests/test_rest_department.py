@@ -1,6 +1,7 @@
 import unittest
 import requests
 from logger.logs import BASE, logger
+from app import app as tested_app
 
 
 put_department = {'title': 'Test'}
@@ -20,8 +21,13 @@ delete_cmp = patch_cmp
 
 
 class TestDepartmentRESTAPI(unittest.TestCase):
+    def setUp(self):
+        tested_app.app.config['TESTING'] = True
+        self.app = tested_app.app.test_client()
+
     def step_get(self):
-        response = requests.get(BASE + 'dep/2')
+        response = self.app.get('/dep/2')
+        #response = requests.get(BASE + 'dep/2')
         self.assertEqual(response.json(), get_cmp)
 
     def step_put(self):

@@ -1,6 +1,6 @@
 from flask import Flask
 import config
-from app.views.views import general, auth, current_user, redirect, url_for
+from app.views.views import general, auth, redirect, url_for
 from .extensions import db, bcr, login_manager, migrate, mail
 
 
@@ -25,6 +25,7 @@ def create_app():
 
     app.register_blueprint(general)
     app.register_blueprint(auth)
+
     return app
 
 

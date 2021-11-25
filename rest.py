@@ -1,237 +1,156 @@
-from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
+import jwt
+import datetime
+from flask import request, jsonify, make_response
+from flask_bcrypt import generate_password_hash, check_password_hash
+from functools import wraps
 from app import app
-from app.models.models import Employee, Department, Request
-from app.extensions import db
-from config import DEBUG
+from app import db
+from app.models.models import (Employee,
+                               Department,
+                               Request)
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            current_user = Employee.query.get(data['id'])
+        except:
+            return jsonify({'message': 'token is invalid'}), 401
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
 
 
-api = Api(app)
-user_put_args = reqparse.RequestParser()
-user_update_args = reqparse.RequestParser()
-department_put_args = reqparse.RequestParser()
-department_update_args = reqparse.RequestParser()
-request_put_args = reqparse.RequestParser()
-request_update_args = reqparse.RequestParser()
+@app.route('/emps', methods=['GET'])
+@token_required
+def get_all_employees(current_user):
 
-user_put_args.add_argument('firstname', type=str, required=True)
-user_put_args.add_argument('lastname', type=str, required=True)
-user_put_args.add_argument('email', type=str, required=True)
-user_put_args.add_argument('department_id', type=int, required=True)
+    if current_user.role_id != 4:
+        return jsonify({'message': 'Permission denied'})
 
-user_update_args.add_argument('firstname', type=str)
-user_update_args.add_argument('lastname', type=str)
-user_update_args.add_argument('email', type=str)
-user_update_args.add_argument('department_id', type=int)
+    employees = Employee.query.all()
+    output = []
 
-department_put_args.add_argument('title', type=str, required=True)
-
-department_update_args.add_argument('title', type=str)
-
-request_put_args.add_argument('sender', type=int, required=True)
-request_put_args.add_argument('change_department_id', type=int, required=True)
-request_put_args.add_argument('increase_salary', type=int, required=True)
-request_put_args.add_argument('status', type=int, required=True)
-
-request_update_args.add_argument('sender', type=int)
-request_update_args.add_argument('change_department_id', type=int)
-request_update_args.add_argument('increase_salary', type=int)
-request_update_args.add_argument('status', type=int)
-
-user_fields = {
-    'id': fields.Integer,
-    'firstname': fields.String,
-    'lastname': fields.String,
-    'email': fields.String,
-    'department_id': fields.Integer,
-    'role_id': fields.Integer,
-    'salary': fields.Float
-}
-
-department_fields = {
-    'id': fields.Integer,
-    'title': fields.String
-}
-
-request_fields = {
-    'id': fields.Integer,
-    'sender': fields.Integer,
-    'change_department_id': fields.Integer,
-    'increase_salary': fields.Integer,
-    'status': fields.Integer
-}
+    for emp in employees:
+        emp_data = dict()
+        emp_data['id'] = emp.id
+        emp_data['firstname'] = emp.firstname
+        emp_data['lastname'] = emp.lastname
+        emp_data['email'] = emp.email
+        emp_data['birth_date'] = emp.birth_date
+        emp_data['department_id'] = emp.department_id
+        emp_data['salary'] = emp.salary
+        emp_data['role_id'] = emp.role_id
+        output.append(emp_data)
+    return jsonify({'users': output})
 
 
-class User(Resource):
-    @marshal_with(user_fields)
-    def get(self, user_id):
-        result = Employee.query.get(user_id)
-        if not result:
-            abort(404, message='There is no employee with such id')
-        return result
+@app.route('/emp/<int:emp_id>', methods=['GET'])
+@token_required
+def get_employee(current_user, emp_id):
+    if current_user.role_id != 4:
+        return jsonify({'message': 'Permission denied'})
 
-    @marshal_with(user_fields)
-    def put(self, user_id):
-        args = user_put_args.parse_args()
-        result = Employee.query.get(user_id)
-        if result:
-            abort(409, message='There is already an employee with such id')
-        department = Department.query.get(args['department_id'])
-        if not department:
-            abort(404, message='There is no department with such id')
-        employee = Employee(id=user_id,
-                            firstname=args['firstname'],
-                            lastname=args['lastname'],
-                            birth_date='1990-11-11',
-                            email=args['email'],
-                            password='...',
-                            department_id=args['department_id'],
-                            role_id=3,
-                            salary=0)
-        db.session.add(employee)
-        db.session.commit()
-        return employee, 201
+    emp = Employee.query.get(emp_id)
 
-    @marshal_with(user_fields)
-    def patch(self, user_id):
-        args = user_update_args.parse_args()
-        result = Employee.query.get(user_id)
-        if not result:
-            abort(404, message='There is no employee with such id')
-        if args['department_id']:
-            department = Department.query.get(args['department_id'])
-            if not department:
-                abort(404, message='There is no department with such id')
-            else:
-                result.department_id = args['department_id']
-        if args['firstname']:
-            result.firstname = args['firstname']
-        if args['lastname']:
-            result.lastname = args['lastname']
-        if args['email']:
-            result.email = args['email']
-        db.session.commit()
-        return result
+    if not emp:
+        return jsonify({'message': 'Employee not found'})
 
-    @marshal_with(user_fields)
-    def delete(self, user_id):
-        result = Employee.query.get(user_id)
-        if not result:
-            abort(404, message='There is no user with such id')
-        db.session.delete(result)
-        db.session.commit()
-        return result
+    emp_data = dict()
+    emp_data['id'] = emp.id
+    emp_data['firstname'] = emp.firstname
+    emp_data['lastname'] = emp.lastname
+    emp_data['email'] = emp.email
+    emp_data['birth_date'] = emp.birth_date
+    emp_data['department_id'] = emp.department_id
+    emp_data['salary'] = emp.salary
+    emp_data['role_id'] = emp.role_id
+
+    return jsonify({'user': emp_data})
 
 
-class Dep(Resource):
-    @marshal_with(department_fields)
-    def get(self, department_id):
-        result = Department.query.get(department_id)
-        if not result:
-            abort(404, message='There is no department with such id')
-        return result
+@app.route('/emp', methods=['POST'])
+@token_required
+def create_employee(current_user):
+    if current_user.role_id != 4:
+        return jsonify({'message': 'Permission denied'})
+    data = request.get_json()
 
-    @marshal_with(department_fields)
-    def put(self, department_id):
-        args = department_put_args.parse_args()
-        result = Department.query.get(department_id)
-        if result:
-            abort(409, message='There is already a department with such id')
-        department = Department(id=department_id,
-                                title=args['title'])
-        db.session.add(department)
-        db.session.commit()
-        return department, 201
+    hashed_password = generate_password_hash(data['password'])
 
-    @marshal_with(department_fields)
-    def patch(self, department_id):
-        args = department_update_args.parse_args()
-        result = Department.query.get(department_id)
-        if not result:
-            abort(404, message='There is no department with such id')
-        if args['title']:
-            result.title = args['title']
-        db.session.commit()
-        return result
-
-    @marshal_with(department_fields)
-    def delete(self, department_id):
-        result = Department.query.get(department_id)
-        if not result:
-            abort(404, message='There is no department with such id')
-        db.session.delete(result)
-        db.session.commit()
-        return result
+    new_emp = Employee(firstname=data['firstname'],
+                       lastname=data['lastname'],
+                       email=data['email'],
+                       password=hashed_password,
+                       birth_date=data['birth_date'],
+                       department_id=data['department_id'],
+                       role_id=3,
+                       salary=0)
+    db.session.add(new_emp)
+    db.session.commit()
+    return jsonify({'message': 'new employee created'})
 
 
-class Req(Resource):
-    @marshal_with(request_fields)
-    def get(self, request_id):
-        result = Request.query.get(request_id)
-        if not result:
-            abort(404, message='There is no request with such id')
-        return result
+@app.route('/emp/<int:emp_id>', methods=['PATCH'])
+@token_required
+def patch_employee(current_user, emp_id):
+    if current_user.role_id != 4:
+        return jsonify({'message': 'Permission denied'})
+    emp = Employee.query.get(emp_id)
 
-    @marshal_with(request_fields)
-    def put(self, request_id):
-        args = request_put_args.parse_args()
-        result = Request.query.get(request_id)
-        if result:
-            abort(409, message='There is already a request with such id')
-        sender = Employee.query.get(args['sender'])
-        if not sender:
-            abort(404, message='There is no employee with such id')
-        department = Department.query.get(args['change_department_id'])
-        if not department:
-            abort(404, message='There is no department with such id')
-        if not (args['status'] in [0, 1, 2]):
-            abort(404, message='There is no such status of request')
-        request = Request(id=request_id,
-                          sender=args['sender'],
-                          change_department_id=args['change_department_id'],
-                          increase_salary=args['increase_salary'],
-                          status=args['status'])
-        db.session.add(request)
-        db.session.commit()
-        return request, 201
+    if not emp:
+        return jsonify({'message': 'Employee not found'})
 
-    @marshal_with(request_fields)
-    def patch(self, request_id):
-        args = request_update_args.parse_args()
-        result = Request.query.get(request_id)
-        if not result:
-            abort(404, message='There is no request with such id')
-        if args['sender']:
-            sender = Employee.query.get(args['sender'])
-            if not sender:
-                abort(404, message='There is no employee with such id')
-            result.sender = args['sender']
-        if args['change_department_id']:
-            department = Department.query.get(args['change_department_id'])
-            if not department:
-                abort(404, message='There is no department with such id')
-            result.change_department_id = args['change_department_id']
-        if args['increase_salary']:
-            result.increase_salary = args['increase_salary']
-        if args['status']:
-            if not (args['status'] in [0, 1, 2]):
-                abort(404, message='There is no such status of request')
-            result.status = args['status']
-        db.session.commit()
-        return result
-
-    @marshal_with(request_fields)
-    def delete(self, request_id):
-        result = Request.query.get(request_id)
-        if not result:
-            abort(404, message='There is no request with such id')
-        db.session.delete(result)
-        db.session.commit()
-        return result
+    data = request.get_json()
+    if data['password']:
+        emp.password = generate_password_hash(data['password'])
+    db.session.commit()
+    return jsonify({'message': 'Employee updated'})
 
 
-api.add_resource(User, '/user/<int:user_id>')
-api.add_resource(Dep, '/dep/<int:department_id>')
-api.add_resource(Req, '/req/<int:request_id>')
+@app.route('/emp/<int:emp_id>', methods=['DELETE'])
+@token_required
+def delete_employee(current_user, emp_id):
+    if current_user.role_id != 4:
+        return jsonify({'message': 'Permission denied'})
+    emp = Employee.query.get(emp_id)
+
+    if not emp:
+        return jsonify({'message': 'Employee not found'})
+
+    db.session.delete(emp)
+    db.session.commit()
+    return jsonify({'message': 'Employee deleted'})
+
+
+@app.route('/login')
+def login():
+    auth = request.authorization
+
+    if not auth or not auth.username or not auth.password:
+        return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
+
+    emp = Employee.query.filter_by(email=auth.username).first()
+
+    if not emp:
+        return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
+
+    if check_password_hash(emp.password, auth.password):
+        token = jwt.encode({'id': emp.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+                           app.config['SECRET_KEY'], algorithm='HS256')
+        return jsonify({'token': token})
+
+    return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
+
 
 if __name__ == '__main__':
-    app.run(debug=DEBUG)
+    app.run(debug=True)
