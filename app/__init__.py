@@ -8,7 +8,7 @@ from .extensions import db, bcr, migrate, mail
 def create_app():
     app = Flask(__name__)
     app.permanent_session_lifetime = datetime.timedelta(days=1)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://bf2337a80d442a:ec761168@us-cdbr-east-04.cleardb.com/heroku_9eba5712da43e49?reconnect=true'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://bf2337a80d442a:ec761168@us-cdbr-east-04.cleardb.com/heroku_9eba5712da43e49'
     app.config['SECRET_KEY'] = config.SECRET_KEY
     app.config['WHOOSH_BASE'] = 'whoosh'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
