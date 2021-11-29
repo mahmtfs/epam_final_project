@@ -6,6 +6,7 @@ from flask import flash, redirect, url_for, Blueprint, render_template, request,
 from flask_mail import Message
 from app.extensions import mail
 from config import RESET_PASSWORD_MESSAGE, RESET_PASSWORD_WARNING, SECRET_KEY, URL
+from logger.logs import BASE, logger
 from app.views.forms import (RegistrationForm,
                              LoginForm,
                              RequestForm,
@@ -39,13 +40,14 @@ def validate_token():
 
 @auth.route('/register', methods=['POST', 'GET'])
 def register():
+    logger.error(f'{session}')
     if validate_token():
         flash('You are already logged in', 'info')
         return redirect(url_for('general.departments_page'))
     form = RegistrationForm()
     response_deps = requests.get(f'{URL}/deps',
                                  json={'register': True})
-    print(response_deps.status_code)
+    logger.error(f'{response_deps} failed ({response_deps.status_code}:{response_deps.json()})')
     form.department.choices = [department['title'] for department in response_deps.json()['departments']]
     if form.validate_on_submit():
         response = requests.post(f'{URL}/api_register',
@@ -65,6 +67,7 @@ def register():
 
 @auth.route('/login', methods=['POST', 'GET'])
 def login():
+    logger.error(f'{session}')
     if validate_token():
         flash('You are already logged in', 'info')
         return redirect(url_for('general.departments_page'))
@@ -76,7 +79,7 @@ def login():
                 password = form.password.data
                 response = requests.post(f'{URL}/api_login', json={'email': email,
                                                                    'password': password})
-                print(response.json())
+                logger.error(f'{response} failed ({response.status_code}:{response.json()})')
                 session.permanent = True
                 session['token'] = response.json()['token']
                 session['current_user_id'] = response.json()['current_user_id']
