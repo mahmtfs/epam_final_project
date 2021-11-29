@@ -16,8 +16,8 @@ from app.views.forms import (RegistrationForm,
                              ResetPasswordForm,
                              SearchDepartmentForm)
 
-auth = Blueprint('auth', name)
-general = Blueprint('general', name)
+auth = Blueprint('auth', __name__)
+general = Blueprint('general', __name__)
 
 
 def validate_token():
