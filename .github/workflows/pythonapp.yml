@@ -29,5 +29,5 @@ jobs:
         git push heroku HEAD:new_rest2 -f
     - name: Test with unittest
       run: |
-        pip install unittest
-        python3 -m unittest discover tests
+        pip install pytest
+        pytest
