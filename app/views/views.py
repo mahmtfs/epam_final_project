@@ -44,7 +44,7 @@ def register():
         return redirect(url_for('general.departments_page'))
     form = RegistrationForm()
     response_deps = requests.get('http://localhost:5000/deps',
-                                 json={'token', session['token']})
+                                 json={'register': True})
     form.department.choices = [department['title'] for department in response_deps.json()['departments']]
     if form.validate_on_submit():
         response = requests.post('http://localhost:5000/api_register',
