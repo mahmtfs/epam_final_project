@@ -12,6 +12,7 @@ def create_app():
     app.config['SECRET_KEY'] = config.SECRET_KEY
     app.config['WHOOSH_BASE'] = 'whoosh'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_POOL_RECYCLE'] = config.SQLALCHEMY_POOL_RECYCLE
 
     app.config['MAIL_SERVER'] = config.MAIL_SERVER
     app.config['MAIL_PORT'] = config.MAIL_PORT
