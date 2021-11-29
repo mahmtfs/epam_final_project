@@ -1,3 +1,4 @@
+Yeah No, [11/29/2021 5:43 PM]
 import jwt
 import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -5,7 +6,7 @@ import requests
 from flask import flash, redirect, url_for, Blueprint, render_template, request, session
 from flask_mail import Message
 from app.extensions import mail
-from config import RESET_PASSWORD_MESSAGE, RESET_PASSWORD_WARNING, SECRET_KEY
+from config import RESET_PASSWORD_MESSAGE, RESET_PASSWORD_WARNING, SECRET_KEY, URL
 from app.views.forms import (RegistrationForm,
                              LoginForm,
                              RequestForm,
@@ -16,8 +17,8 @@ from app.views.forms import (RegistrationForm,
                              ResetPasswordForm,
                              SearchDepartmentForm)
 
-auth = Blueprint('auth', __name__)
-general = Blueprint('general', __name__)
+auth = Blueprint('auth', name)
+general = Blueprint('general', name)
 
 
 def validate_token():
@@ -43,11 +44,11 @@ def register():
         flash('You are already logged in', 'info')
         return redirect(url_for('general.departments_page'))
     form = RegistrationForm()
-    response_deps = requests.get('http://localhost:5000/deps',
+    response_deps = requests.get(f'{URL}/deps',
                                  json={'register': True})
     form.department.choices = [department['title'] for department in response_deps.json()['departments']]
     if form.validate_on_submit():
-        response = requests.post('http://localhost:5000/api_register',
+        response = requests.post(f'{URL}/api_register',
                                  json={'firstname': form.firstname.raw_data,
                                        'lastname': form.lastname.raw_data,
                                        'email': form.email.raw_data,
@@ -73,8 +74,8 @@ def login():
             if request.method == 'POST':
                 email = form.email.data
                 password = form.password.data
-                response = requests.post('http://localhost:5000/api_login', json={'email': email,
-                                                                                      'password': password})
+                response = requests.post(f'{URL}/api_login', json={'email': email,
+                                                                   'password': password})
                 session.permanent = True
                 session['token'] = response.json()['token']
                 session['current_user_id'] = response.json()['current_user_id']
@@ -87,7 +88,7 @@ def login():
             flash('Login unsuccessful. There may be a typo.', 'danger')
     return render_template('login.html', title='Login Page', form=form)
 
-
+Yeah No, [11/29/2021 5:43 PM]
 @auth.route('/logout')
 def logout():
     if not validate_token():
@@ -105,12 +106,12 @@ def profile():
     if not validate_token():
         flash('You need to be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
-    response_emp = requests.get(f'http://localhost:5000/emp/{session["current_user_id"]}',
+    response_emp = requests.get(f'{URL}/emp/{session["current_user_id"]}',
                                 json={'token': session['token']})
     if response_emp.status_code != 200:
         flash('Something went wrong', 'danger')
         return redirect(url_for('general.departments_page'))
-    response_dep = requests.get(f'http://localhost:5000/dep/{session["department_id"]}',
+    response_dep = requests.get(f'{URL}/dep/{session["department_id"]}',
                                 json={'token': session['token']})
     if response_dep.status_code != 200:
         flash('Something went wrong', 'danger')
@@ -141,7 +142,7 @@ def verify_reset_token(token):
         employee_id = s.loads(token)['employee_id']
     except:
         return None
-    response_emp = requests.get(f'http://localhost:5000/emp/{employee_id}',
+    response_emp = requests.get(f'{URL}/emp/{employee_id}',
                                 json={'token': session['token']})
     return response_emp.json()['user']
 
@@ -152,7 +153,7 @@ def reset_request():
         return redirect(url_for('general.departments_page'))
     form = RequestResetForm()
     if form.validate_on_submit():
-        response = requests.get(f'http://localhost:5000/emp/{session["current_user"].id}',
+        response = requests.get(f'{URL}/emp/{session["current_user"].id}',
                                 json={'token': session['token']})
         employee = response.json()
         send_reset_email(employee)
@@ -171,7 +172,7 @@ def reset_token(token):
         return redirect(url_for('auth.reset_request'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        response = requests.patch(f'http://localhost:5000/emp/{employee["id"]}',
+        response = requests.patch(f'{URL}/emp/{employee["id"]}',
                                   json={'token': session['token'],
                                         'password': form.password.data})
         if response.status_code != 200:
@@ -181,7 +182,7 @@ def reset_token(token):
         return redirect(url_for('auth.login'))
     return render_template('reset_token.html', title='Reset Token', form=form)
 
-
+Yeah No, [11/29/2021 5:43 PM]
 @general.route('/', methods=['POST', 'GET'])
 def departments_page():
     if not validate_token():
@@ -189,14 +190,14 @@ def departments_page():
     form = SearchDepartmentForm()
     departments = dict()
     if form.search.data:
-        response = requests.get(f'http://localhost:5000/deps/search/{form.search.data}',
+        response = requests.get(f'{URL}/deps/search/{form.search.data}',
                                 json={'token': session['token']})
         if response.status_code != 200:
             flash('Something went wrong', 'danger')
         else:
             departments = response.json()['departments']
     else:
-        response = requests.get(f'http://localhost:5000/deps',
+        response = requests.get(f'{URL}/deps',
                                 json={'token': session['token']})
         if response.status_code != 200:
             flash('Something went wrong', 'danger')
@@ -222,11 +223,11 @@ def department_page(department_id):
     if not validate_token():
         flash('You need to be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
-    response_dep = requests.get(f'http://localhost:5000/dep/{department_id}',
+    response_dep = requests.get(f'{URL}/dep/{department_id}',
                                 json={'token': session['token']})
     form = SearchEmployeeForm()
     if form.search.data:
-        response_emps = requests.get(f'http://localhost:5000/emps/search/{form.search.data}',
+        response_emps = requests.get(f'{URL}/emps/search/{form.search.data}',
                                      json={'token': session['token'],
                                            'filter': f'or_(Employee.firstname.contains("{form.search.data}"),'
                                                      f' Employee.lastname.contains("{form.search.data}")),'
@@ -247,12 +248,12 @@ def employee_page(employee_id):
     if 'token' in session:
         if employee_id == session['current_user_id']:
             return redirect(url_for('auth.profile'))
-    response_emp = requests.get(f'http://localhost:5000/emp/{employee_id}',
+    response_emp = requests.get(f'{URL}/emp/{employee_id}',
                                 json={'token': session['token']})
     if response_emp.status_code != 200:
         flash('Something went wrong', 'danger')
         return redirect(url_for('general.departments_page'))
-    response_dep = requests.get(f'http://localhost:5000/dep/{response_emp.json()["user"]["department_id"]}',
+    response_dep = requests.get(f'{URL}/dep/{response_emp.json()["user"]["department_id"]}',
                                 json={'token': session['token']})
     if response_dep.status_code != 200:
         flash('Something went wrong', 'danger')
@@ -267,7 +268,7 @@ def employee_page(employee_id):
 def about_page():
     return render_template('about.html', title='About Page')
 
-
+Yeah No, [11/29/2021 5:43 PM]
 @general.route('/send-request', methods=['POST', 'GET'])
 def send_request():
     if not validate_token():
@@ -277,10 +278,10 @@ def send_request():
         flash('Only regular users can request changes.', 'warning')
         return redirect(url_for('general.departments_page'))
     form = RequestForm()
-    response_deps = requests.get('http://localhost:5000/deps',
+    response_deps = requests.get(f'{URL}/deps',
                                  json={'token': session['token']})
     #departments = [department for department in Department.query.all()]
-    response_dep = requests.get(f'http://localhost:5000/dep/{session["department_id"]}',
+    response_dep = requests.get(f'{URL}/dep/{session["department_id"]}',
                                 json={'token': session['token']})
     departments = response_deps.json()['departments']
     department = response_dep.json()['department']
@@ -293,7 +294,7 @@ def send_request():
     if form.validate_on_submit():
         if form.change_department.data or form.increase_salary.data:
             if form.change_department.data:
-                response_change_dep = requests.get(f'http://localhost:5000/deps',
+                response_change_dep = requests.get(f'{URL}/deps',
                                                    json={'token': session['token'],
                                                          'filter': f'title="{form.change_department.data}"'})
                 #change_department = Department.query.filter_by(title=form.change_department.data).first()
@@ -304,7 +305,7 @@ def send_request():
                 increase_salary = int(form.increase_salary.data[:-1])
             else:
                 increase_salary = 0
-            response_req = requests.post('http://localhost:5000/req',
+            response_req = requests.post(f'{URL}/req',
                                          json={'token': session['token'],
                                                'sender': session['current_user_id'],
                                                'change_department_id': change_department,
@@ -332,15 +333,16 @@ def requests_page():
     form = SearchRequestForm()
     if form.search.data:
         if session['role_id'] == 4:
-            response_reqs = requests.get(f'http://localhost:5000/reqs',
+            response_reqs = requests.get(f'{URL}/reqs',
                                          json={'token': session['token'],
                                                'filter': f'or_(Employee.firstname.contains("{form.search.data}"),'
                                                          f' Employee.lastname.contains("{form.search.data}")),'
                                                          f' Request.status == 0,'
                                                          f' Employee.id == Request.sender'})
 
-        else:
-            response_reqs = requests.get(f'http://localhost:5000/reqs',
+Yeah No, [11/29/2021 5:43 PM]
+else:
+            response_reqs = requests.get(f'{URL}/reqs',
                                          json={'token': session['token'],
                                                'filter': f'or_(Employee.firstname.contains("{form.search.data}"),'
                                                          f' Employee.lastname.contains("{form.search.data}")),'
@@ -348,12 +350,12 @@ def requests_page():
                                                          f' Employee.id == {session["current_user_id"]}'})
     else:
         if session['role_id'] == 4:
-            response_reqs = requests.get(f'http://localhost:5000/reqs',
+            response_reqs = requests.get(f'{URL}/reqs',
                                          json={'token': session['token'],
                                                'filter': f'Request.status == 0,'
                                                          f'Employee.id == Request.sender'})
         else:
-            response_reqs = requests.get(f'http://localhost:5000/reqs',
+            response_reqs = requests.get(f'{URL}/reqs',
                                          json={'token': session['token'],
                                                'filter': f'{session["current_user_id"]} == Request.sender,'
                                                          f'Employee.id == {session["current_user_id"]}'})
@@ -369,7 +371,7 @@ def request_page(request_id):
     if not validate_token():
         flash('You need to be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
-    response_req = requests.get(f'http://localhost:5000/req/{request_id}',
+    response_req = requests.get(f'{URL}/req/{request_id}',
                                 json={'token': session['token']})
     if response_req.status_code != 200:
         flash('Something went wrong', 'danger')
@@ -378,14 +380,14 @@ def request_page(request_id):
     if req['sender'] != session['current_user_id'] and session['role_id'] != 4:
         flash('Access to this page is denied for unauthorized users!', 'danger')
         return redirect(url_for('general.requests_page'))
-    response_emp = requests.get(f'http://localhost:5000/emp/{req["sender"]}',
+    response_emp = requests.get(f'{URL}/emp/{req["sender"]}',
                                 json={'token': session['token']})
     if response_emp.status_code != 200:
         flash('Something went wrong', 'danger')
         return redirect(url_for('general.departments_page'))
     sender = response_emp.json()['user']
     if req['change_department_id']:
-        response_dep = requests.get(f'http://localhost:5000/dep/{req["change_department_id"]}')
+        response_dep = requests.get(f'{URL}/dep/{req["change_department_id"]}')
         if response_dep.status_code != 200:
             flash('Something went wrong', 'danger')
             return redirect(url_for('general.departments_page'))
@@ -402,14 +404,16 @@ def request_page(request_id):
                 return redirect(url_for('general.requests_page'))
             if form.accept.data:
                 if req['change_department_id']:
-                    response_patch_emp = requests.patch(f'http://localhost:5000/emp/{req["sender"]}',
+                    response_patch_emp = requests.patch(f'{URL}/emp/{req["sender"]}',
                                                         json={'token': session['token'],
                                                               'department_id': req['change_department_id']})
                     if response_patch_emp.status_code != 200:
                         flash('Something went wrong', 'danger')
                         return redirect(url_for('general.departments_page'))
                 if req['increase_salary']:
-                    response_patch_emp = requests.patch(f'http://localhost:5000/emp/{req["sender"]}',
+
+Yeah No, [11/29/2021 5:43 PM]
+response_patch_emp = requests.patch(f'{URL}/emp/{req["sender"]}',
                                                         json={'token': session['token'],
                                                               'salary': round(sender['salary']
                                                                               + sender['salary']
@@ -417,14 +421,14 @@ def request_page(request_id):
                     if response_patch_emp.status_code != 200:
                         flash('Something went wrong', 'danger')
                         return redirect(url_for('general.departments_page'))
-                response_patch_req = requests.patch(f'http://localhost:5000/req/{req["id"]}',
+                response_patch_req = requests.patch(f'{URL}/req/{req["id"]}',
                                                     json={'token': session['token'],
                                                           'status': 1})
                 if response_patch_req.status_code != 200:
                     flash('Something went wrong', 'danger')
                     return redirect(url_for('general.departments_page'))
             else:
-                response_patch_req = requests.patch(f'http://localhost:5000/req/{req["id"]}',
+                response_patch_req = requests.patch(f'{URL}/req/{req["id"]}',
                                                     json={'token': session['token'],
                                                           'status': 2})
                 if response_patch_req.status_code != 200:
