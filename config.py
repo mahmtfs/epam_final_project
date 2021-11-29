@@ -2,7 +2,7 @@ import os
 import secrets
 
 
-DEBUG = True
+DEBUG = False
 TESTING = False
 SECRET_KEY = secrets.token_hex(16)
 
