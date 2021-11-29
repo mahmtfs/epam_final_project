@@ -45,6 +45,7 @@ def register():
     form = RegistrationForm()
     response_deps = requests.get(f'{URL}/deps',
                                  json={'register': True})
+    print(response_deps.status_code)
     form.department.choices = [department['title'] for department in response_deps.json()['departments']]
     if form.validate_on_submit():
         response = requests.post(f'{URL}/api_register',
@@ -75,6 +76,7 @@ def login():
                 password = form.password.data
                 response = requests.post(f'{URL}/api_login', json={'email': email,
                                                                    'password': password})
+                print(response.json())
                 session.permanent = True
                 session['token'] = response.json()['token']
                 session['current_user_id'] = response.json()['current_user_id']
