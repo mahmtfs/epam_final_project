@@ -7,7 +7,7 @@ token = None
 
 
 def test_register():
-    response = requests.post(url_for('register'),
+    response = requests.post('https://pure-caverns-26611.herokuapp.com/api_register',
                              json={'firstname': 'test',
                                    'lastname': 'test',
                                    'email': 'test@gmail.com',
@@ -18,7 +18,7 @@ def test_register():
 
 
 def test_login():
-    response = requests.post(url_for('login'), json={'email': 'test@gmail.com',
+    response = requests.post('https://pure-caverns-26611.herokuapp.com/api_login', json={'email': 'test@gmail.com',
                                                                       'password': 'test'})
     if 'token' in response.json():
         global token
@@ -26,6 +26,6 @@ def test_login():
     assert 'token' in response.json() is True
 
 def test_get_employees():
-    response = requests.get(url_for('get_all_employees'),
+    response = requests.get('https://pure-caverns-26611.herokuapp.com/emps',
                             json={'token': token})
     assert response.status_code == 200
