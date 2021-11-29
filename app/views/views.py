@@ -1,4 +1,3 @@
-Yeah No, [11/29/2021 5:43 PM]
 import jwt
 import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -88,7 +87,7 @@ def login():
             flash('Login unsuccessful. There may be a typo.', 'danger')
     return render_template('login.html', title='Login Page', form=form)
 
-Yeah No, [11/29/2021 5:43 PM]
+
 @auth.route('/logout')
 def logout():
     if not validate_token():
@@ -182,7 +181,7 @@ def reset_token(token):
         return redirect(url_for('auth.login'))
     return render_template('reset_token.html', title='Reset Token', form=form)
 
-Yeah No, [11/29/2021 5:43 PM]
+
 @general.route('/', methods=['POST', 'GET'])
 def departments_page():
     if not validate_token():
@@ -268,7 +267,7 @@ def employee_page(employee_id):
 def about_page():
     return render_template('about.html', title='About Page')
 
-Yeah No, [11/29/2021 5:43 PM]
+
 @general.route('/send-request', methods=['POST', 'GET'])
 def send_request():
     if not validate_token():
@@ -340,8 +339,8 @@ def requests_page():
                                                          f' Request.status == 0,'
                                                          f' Employee.id == Request.sender'})
 
-Yeah No, [11/29/2021 5:43 PM]
-else:
+
+        else:
             response_reqs = requests.get(f'{URL}/reqs',
                                          json={'token': session['token'],
                                                'filter': f'or_(Employee.firstname.contains("{form.search.data}"),'
@@ -411,9 +410,7 @@ def request_page(request_id):
                         flash('Something went wrong', 'danger')
                         return redirect(url_for('general.departments_page'))
                 if req['increase_salary']:
-
-Yeah No, [11/29/2021 5:43 PM]
-response_patch_emp = requests.patch(f'{URL}/emp/{req["sender"]}',
+                    response_patch_emp = requests.patch(f'{URL}/emp/{req["sender"]}',
                                                         json={'token': session['token'],
                                                               'salary': round(sender['salary']
                                                                               + sender['salary']
