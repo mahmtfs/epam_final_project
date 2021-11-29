@@ -20,3 +20,5 @@ MAIL_ASCII_ATTACHMENTS = False
 
 RESET_PASSWORD_MESSAGE = 'To reset your password, visit the following link:\n'
 RESET_PASSWORD_WARNING = '\nIf you did not make this request, simply ignore this email.'
+
+URL = 'https://pure-caverns-26611.herokuapp.com'
