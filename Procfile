@@ -1,1 +1,1 @@
-web gunicorn --pythonpath / app:app
+web gunicorn rest:app --workers 4
