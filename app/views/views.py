@@ -1,12 +1,11 @@
 import jwt
 import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from secret import secret
 import requests
 from flask import flash, redirect, url_for, Blueprint, render_template, request, session
 from flask_mail import Message
 from app.extensions import mail
-from config import RESET_PASSWORD_MESSAGE, RESET_PASSWORD_WARNING
+from config import RESET_PASSWORD_MESSAGE, RESET_PASSWORD_WARNING, SECRET_KEY
 from app.views.forms import (RegistrationForm,
                              LoginForm,
                              RequestForm,
@@ -25,7 +24,7 @@ def validate_token():
     if 'token' not in session:
         return False
     try:
-        jwt.decode(session['token'], secret, algorithms=['HS256'])
+        jwt.decode(session['token'], SECRET_KEY, algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
         session.pop('token', None)
         session.pop('current_user_id', None)
@@ -34,7 +33,7 @@ def validate_token():
         return False
     session['token'] = jwt.encode({'id': session['current_user_id'],
                                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)},
-                                  secret, algorithm='HS256')
+                                  SECRET_KEY, algorithm='HS256')
     return True
 
 
@@ -132,12 +131,12 @@ def send_reset_email(employee):
 
 
 def get_reset_token(employee, expires_sec=1800):
-    s = Serializer(secret, expires_sec)
+    s = Serializer(SECRET_KEY, expires_sec)
     return s.dumps({'employee_id': employee['id']}).decode('utf-8')
 
 
 def verify_reset_token(token):
-    s = Serializer(secret)
+    s = Serializer(SECRET_KEY)
     try:
         employee_id = s.loads(token)['employee_id']
     except:
