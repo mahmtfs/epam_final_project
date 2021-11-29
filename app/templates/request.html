@@ -8,14 +8,14 @@
             {% endif %}
                 <div class="content-section"
                      style="min-width: 200px;">
-                    <h1>Request #{{ request.id }}</h1>
+                    <h1>Request #{{ request['id'] }}</h1>
                     <p>
-                        Sender: {{ sender.firstname }} {{ sender.lastname }} ({{ sender.id }})<br>
+                        Sender: {{ sender['firstname'] }} {{ sender['lastname'] }} ({{ sender['id'] }})<br>
                         {% if change_department %}
-                            Change Department To: {{ change_department.title }}<br>
+                            Change Department To: {{ change_department['title'] }}<br>
                         {% endif %}
                         {% if request.increase_salary %}
-                            Increase Salary By: {{ request.increase_salary }}%<br>
+                            Increase Salary By: {{ request['increase_salary'] }}%<br>
                         {% endif %}
                     </p>
                 </div>

@@ -3,12 +3,12 @@
 {% block content %}
     <div class="container mt-3" style="max-width: 600px;">
         <div class="content-section">
-            <h1>{{ employee.firstname }} {{ employee.lastname }}</h1>
-            <h2>{{ employee.email }}</h2>
+            <h1>{{ employee['firstname'] }} {{ employee['lastname'] }}</h1>
+            <h2>{{ employee['email'] }}</h2>
             <p>
-                Birth Date: {{ employee.birth_date }}<br>
-                Department: {{ department.title }}<br>
-                Salary: {{ employee.salary }}$<br>
+                Birth Date: {{ employee['birth_date'] }}<br>
+                Department: {{ department['title'] }}<br>
+                Salary: {{ employee['salary'] }}$<br>
             </p>
         </div>
     </div>

@@ -1,11 +1,8 @@
-from flask_login import UserMixin
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from app.extensions import db
-from config import SECRET_KEY
 import requests
 
 
-class Employee(db.Model, UserMixin):
+class Employee(db.Model):
     __tablename__ = 'employee'
     __searchable__ = ['firstname', 'lastname']
 
@@ -18,19 +15,6 @@ class Employee(db.Model, UserMixin):
     department_id = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
     salary = db.Column(db.Float)
-
-    def get_reset_token(self, expires_sec=1800):
-        s = Serializer(SECRET_KEY, expires_sec)
-        return s.dumps({'employee_id': self.id}).decode('utf-8')
-
-    @staticmethod
-    def verify_reset_token(token):
-        s = Serializer(SECRET_KEY)
-        try:
-            employee_id = s.loads(token)['employee_id']
-        except:
-            return None
-        return Employee.query.get(employee_id)
 
 
 class Department(db.Model):

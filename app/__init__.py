@@ -1,11 +1,13 @@
-from flask import Flask
+import datetime
+from flask import Flask, redirect, url_for, session
 import config
-from app.views.views import general, auth, current_user, redirect, url_for
-from .extensions import db, bcr, login_manager, migrate, mail
+from app.views.views import general, auth
+from .extensions import db, bcr, migrate, mail
 
 
 def create_app():
     app = Flask(__name__)
+    app.permanent_session_lifetime = datetime.timedelta(days=1)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://rinat:jojo1337@localhost/departments_project'
     app.config['SECRET_KEY'] = config.SECRET_KEY
     app.config['WHOOSH_BASE'] = 'whoosh'
@@ -31,9 +33,6 @@ def create_app():
 app = create_app()
 db.init_app(app)
 bcr.init_app(app)
-login_manager.init_app(app)
-login_manager.login_view = 'auth.login'
-login_manager.login_message_category = 'info'
 migrate.init_app(app, db)
 mail.init_app(app)
 
@@ -52,7 +51,7 @@ class MyModelView(ModelView):
 
     def is_accessible(self):
         try:
-            if current_user.role.id == 4:
+            if session['role_id'] == 4:
                 return True
         except AttributeError:
             return None
@@ -64,9 +63,9 @@ class MyModelView(ModelView):
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
         try:
-            if current_user.role.id == 4:
+            if session['role_id'] == 4:
                 return True
-        except AttributeError:
+        except KeyError:
             return None
 
     def inaccessible_callback(self, name, **kwargs):

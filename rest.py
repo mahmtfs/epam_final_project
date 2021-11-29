@@ -1,237 +1,567 @@
-from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
+import jwt
+import datetime
+from flask import request, jsonify, make_response, redirect, url_for, session
+from flask_bcrypt import generate_password_hash, check_password_hash
 from app import app
-from app.models.models import Employee, Department, Request
-from app.extensions import db
-from config import DEBUG
+from app import db
+from sqlalchemy import or_
+from app.models.models import (Employee,
+                               Department,
+                               Request)
 
 
-api = Api(app)
-user_put_args = reqparse.RequestParser()
-user_update_args = reqparse.RequestParser()
-department_put_args = reqparse.RequestParser()
-department_update_args = reqparse.RequestParser()
-request_put_args = reqparse.RequestParser()
-request_update_args = reqparse.RequestParser()
-
-user_put_args.add_argument('firstname', type=str, required=True)
-user_put_args.add_argument('lastname', type=str, required=True)
-user_put_args.add_argument('email', type=str, required=True)
-user_put_args.add_argument('department_id', type=int, required=True)
-
-user_update_args.add_argument('firstname', type=str)
-user_update_args.add_argument('lastname', type=str)
-user_update_args.add_argument('email', type=str)
-user_update_args.add_argument('department_id', type=int)
-
-department_put_args.add_argument('title', type=str, required=True)
-
-department_update_args.add_argument('title', type=str)
-
-request_put_args.add_argument('sender', type=int, required=True)
-request_put_args.add_argument('change_department_id', type=int, required=True)
-request_put_args.add_argument('increase_salary', type=int, required=True)
-request_put_args.add_argument('status', type=int, required=True)
-
-request_update_args.add_argument('sender', type=int)
-request_update_args.add_argument('change_department_id', type=int)
-request_update_args.add_argument('increase_salary', type=int)
-request_update_args.add_argument('status', type=int)
-
-user_fields = {
-    'id': fields.Integer,
-    'firstname': fields.String,
-    'lastname': fields.String,
-    'email': fields.String,
-    'department_id': fields.Integer,
-    'role_id': fields.Integer,
-    'salary': fields.Float
-}
-
-department_fields = {
-    'id': fields.Integer,
-    'title': fields.String
-}
-
-request_fields = {
-    'id': fields.Integer,
-    'sender': fields.Integer,
-    'change_department_id': fields.Integer,
-    'increase_salary': fields.Integer,
-    'status': fields.Integer
-}
+def validate_token(token):
+    if not token:
+        return make_response('there is no token', 400)
+    try:
+        jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+    except jwt.ExpiredSignatureError:
+        return make_response('token invalid', 401)
+    return make_response('token is valid', 200)
 
 
-class User(Resource):
-    @marshal_with(user_fields)
-    def get(self, user_id):
-        result = Employee.query.get(user_id)
-        if not result:
-            abort(404, message='There is no employee with such id')
-        return result
+"""
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
 
-    @marshal_with(user_fields)
-    def put(self, user_id):
-        args = user_put_args.parse_args()
-        result = Employee.query.get(user_id)
-        if result:
-            abort(409, message='There is already an employee with such id')
-        department = Department.query.get(args['department_id'])
-        if not department:
-            abort(404, message='There is no department with such id')
-        employee = Employee(id=user_id,
-                            firstname=args['firstname'],
-                            lastname=args['lastname'],
-                            birth_date='1990-11-11',
-                            email=args['email'],
-                            password='...',
-                            department_id=args['department_id'],
-                            role_id=3,
-                            salary=0)
-        db.session.add(employee)
-        db.session.commit()
-        return employee, 201
+        if 'token' in request.json():
+            token = request.json['token']
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
 
-    @marshal_with(user_fields)
-    def patch(self, user_id):
-        args = user_update_args.parse_args()
-        result = Employee.query.get(user_id)
-        if not result:
-            abort(404, message='There is no employee with such id')
-        if args['department_id']:
-            department = Department.query.get(args['department_id'])
-            if not department:
-                abort(404, message='There is no department with such id')
-            else:
-                result.department_id = args['department_id']
-        if args['firstname']:
-            result.firstname = args['firstname']
-        if args['lastname']:
-            result.lastname = args['lastname']
-        if args['email']:
-            result.email = args['email']
-        db.session.commit()
-        return result
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            current_user = Employee.query.get(data['id'])
+        except:
+            return jsonify({'message': 'token is invalid'}), 401
 
-    @marshal_with(user_fields)
-    def delete(self, user_id):
-        result = Employee.query.get(user_id)
-        if not result:
-            abort(404, message='There is no user with such id')
-        db.session.delete(result)
-        db.session.commit()
-        return result
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+"""
 
 
-class Dep(Resource):
-    @marshal_with(department_fields)
-    def get(self, department_id):
-        result = Department.query.get(department_id)
-        if not result:
-            abort(404, message='There is no department with such id')
-        return result
+@app.route('/emps', methods=['GET'])
+def get_all_employees():
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
 
-    @marshal_with(department_fields)
-    def put(self, department_id):
-        args = department_put_args.parse_args()
-        result = Department.query.get(department_id)
-        if result:
-            abort(409, message='There is already a department with such id')
-        department = Department(id=department_id,
-                                title=args['title'])
-        db.session.add(department)
-        db.session.commit()
-        return department, 201
+    employees = Employee.query.all()
+    output = []
 
-    @marshal_with(department_fields)
-    def patch(self, department_id):
-        args = department_update_args.parse_args()
-        result = Department.query.get(department_id)
-        if not result:
-            abort(404, message='There is no department with such id')
-        if args['title']:
-            result.title = args['title']
-        db.session.commit()
-        return result
-
-    @marshal_with(department_fields)
-    def delete(self, department_id):
-        result = Department.query.get(department_id)
-        if not result:
-            abort(404, message='There is no department with such id')
-        db.session.delete(result)
-        db.session.commit()
-        return result
+    for emp in employees:
+        emp_data = dict()
+        emp_data['id'] = emp.id
+        emp_data['firstname'] = emp.firstname
+        emp_data['lastname'] = emp.lastname
+        emp_data['email'] = emp.email
+        emp_data['birth_date'] = emp.birth_date
+        emp_data['department_id'] = emp.department_id
+        emp_data['salary'] = emp.salary
+        emp_data['role_id'] = emp.role_id
+        output.append(emp_data)
+    return jsonify({'users': output})
 
 
-class Req(Resource):
-    @marshal_with(request_fields)
-    def get(self, request_id):
-        result = Request.query.get(request_id)
-        if not result:
-            abort(404, message='There is no request with such id')
-        return result
+@app.route('/emp/<int:emp_id>', methods=['GET'])
+def get_employee(emp_id):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
 
-    @marshal_with(request_fields)
-    def put(self, request_id):
-        args = request_put_args.parse_args()
-        result = Request.query.get(request_id)
-        if result:
-            abort(409, message='There is already a request with such id')
-        sender = Employee.query.get(args['sender'])
-        if not sender:
-            abort(404, message='There is no employee with such id')
-        department = Department.query.get(args['change_department_id'])
-        if not department:
-            abort(404, message='There is no department with such id')
-        if not (args['status'] in [0, 1, 2]):
-            abort(404, message='There is no such status of request')
-        request = Request(id=request_id,
-                          sender=args['sender'],
-                          change_department_id=args['change_department_id'],
-                          increase_salary=args['increase_salary'],
-                          status=args['status'])
-        db.session.add(request)
-        db.session.commit()
-        return request, 201
+    emp = Employee.query.get(emp_id)
 
-    @marshal_with(request_fields)
-    def patch(self, request_id):
-        args = request_update_args.parse_args()
-        result = Request.query.get(request_id)
-        if not result:
-            abort(404, message='There is no request with such id')
-        if args['sender']:
-            sender = Employee.query.get(args['sender'])
-            if not sender:
-                abort(404, message='There is no employee with such id')
-            result.sender = args['sender']
-        if args['change_department_id']:
-            department = Department.query.get(args['change_department_id'])
-            if not department:
-                abort(404, message='There is no department with such id')
-            result.change_department_id = args['change_department_id']
-        if args['increase_salary']:
-            result.increase_salary = args['increase_salary']
-        if args['status']:
-            if not (args['status'] in [0, 1, 2]):
-                abort(404, message='There is no such status of request')
-            result.status = args['status']
-        db.session.commit()
-        return result
+    if not emp:
+        return make_response('Employee not found', 404)
 
-    @marshal_with(request_fields)
-    def delete(self, request_id):
-        result = Request.query.get(request_id)
-        if not result:
-            abort(404, message='There is no request with such id')
-        db.session.delete(result)
-        db.session.commit()
-        return result
+    emp_data = dict()
+    emp_data['id'] = emp.id
+    emp_data['firstname'] = emp.firstname
+    emp_data['lastname'] = emp.lastname
+    emp_data['email'] = emp.email
+    emp_data['birth_date'] = emp.birth_date
+    emp_data['department_id'] = emp.department_id
+    emp_data['salary'] = emp.salary
+    emp_data['role_id'] = emp.role_id
+    emp_data['password'] = emp.password
+
+    return jsonify({'user': emp_data})
 
 
-api.add_resource(User, '/user/<int:user_id>')
-api.add_resource(Dep, '/dep/<int:department_id>')
-api.add_resource(Req, '/req/<int:request_id>')
+@app.route('/emp/<email>', methods=['GET'])
+def get_employee_email(email):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    emp = Employee.query.filter_by(email=email).first()
+
+    if not emp:
+        return make_response('Employee not found', 404)
+
+    emp_data = dict()
+    emp_data['id'] = emp.id
+    emp_data['firstname'] = emp.firstname
+    emp_data['lastname'] = emp.lastname
+    emp_data['email'] = emp.email
+    emp_data['birth_date'] = emp.birth_date
+    emp_data['department_id'] = emp.department_id
+    emp_data['salary'] = emp.salary
+    emp_data['role_id'] = emp.role_id
+    emp_data['password'] = emp.password
+
+    return jsonify({'user': emp_data})
+
+
+@app.route('/emp', methods=['POST'])
+def create_employee():
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    data = request.get_json()
+
+    hashed_password = generate_password_hash(data['password'])
+
+    new_emp = Employee(firstname=data['firstname'],
+                       lastname=data['lastname'],
+                       email=data['email'],
+                       password=hashed_password,
+                       birth_date=data['birth_date'],
+                       department_id=data['department_id'],
+                       role_id=3,
+                       salary=0)
+    db.session.add(new_emp)
+    db.session.commit()
+    return jsonify({'message': 'new employee created'})
+
+
+@app.route('/emp/<int:emp_id>', methods=['PATCH'])
+def patch_employee(emp_id):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    emp = Employee.query.get(emp_id)
+
+    if not emp:
+        return make_response('Employee not found', 404)
+
+    data = request.get_json()
+    if 'password' in data:
+        emp.password = generate_password_hash(data['password'])
+    if 'department_id' in data:
+        emp.department_id = data['department_id']
+    db.session.commit()
+    return jsonify({'message': 'Employee updated'})
+
+
+@app.route('/emp/<int:emp_id>', methods=['DELETE'])
+def delete_employee(emp_id):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    emp = Employee.query.get(emp_id)
+
+    if not emp:
+        return make_response('Employee not found', 404)
+
+    db.session.delete(emp)
+    db.session.commit()
+    return jsonify({'message': 'Employee deleted'})
+
+
+@app.route('/emps/search/<que>', methods=['GET'])
+def search_emps(que):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    if 'filter' in request.json:
+        fil = request.json['filter']
+    else:
+        return make_response('Insufficient data in request', 400)
+    emps = eval(f'Employee.query.filter({fil}).all()')
+    output = []
+    for emp in emps:
+        emp_data = dict()
+        emp_data['id'] = emp.id
+        emp_data['firstname'] = emp.firstname
+        emp_data['lastname'] = emp.lastname
+        emp_data['email'] = emp.email
+        emp_data['birth_date'] = emp.birth_date
+        emp_data['department_id'] = emp.department_id
+        emp_data['salary'] = emp.salary
+        emp_data['role_id'] = emp.role_id
+        output.append(emp_data)
+    return jsonify({'users': output})
+
+
+@app.route('/deps', methods=['GET'])
+def get_all_departments():
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    if 'filter' in request.json:
+        departments = eval(f'Department.query.filter_by({request.json["filter"]}).first()')
+    else:
+        departments = Department.query.all()
+    output = []
+    if isinstance(departments, Department):
+        dep_data = dict()
+        dep_data['id'] = departments.id
+        dep_data['title'] = departments.title
+        dep_data['employees'] = []
+        for emp in departments.employees:
+            emp_data = dict()
+            emp_data['id'] = emp.id
+            emp_data['firstname'] = emp.firstname
+            emp_data['lastname'] = emp.lastname
+            emp_data['email'] = emp.email
+            emp_data['birth_date'] = emp.birth_date
+            emp_data['department_id'] = emp.department_id
+            emp_data['salary'] = emp.salary
+            emp_data['role_id'] = emp.role_id
+            dep_data['employees'].append(emp_data)
+        output.append(dep_data)
+    else:
+        for dep in departments:
+            dep_data = dict()
+            dep_data['id'] = dep.id
+            dep_data['title'] = dep.title
+            dep_data['employees'] = []
+            for emp in dep.employees:
+                emp_data = dict()
+                emp_data['id'] = emp.id
+                emp_data['firstname'] = emp.firstname
+                emp_data['lastname'] = emp.lastname
+                emp_data['email'] = emp.email
+                emp_data['birth_date'] = emp.birth_date
+                emp_data['department_id'] = emp.department_id
+                emp_data['salary'] = emp.salary
+                emp_data['role_id'] = emp.role_id
+                dep_data['employees'].append(emp_data)
+            output.append(dep_data)
+    return jsonify({'departments': output})
+
+
+@app.route('/dep/<int:dep_id>', methods=['GET'])
+def get_department(dep_id):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+
+    dep = Department.query.get(dep_id)
+
+    if not dep:
+        return make_response('Department not found', 404)
+
+    dep_data = dict()
+    dep_data['id'] = dep.id
+    dep_data['title'] = dep.title
+    dep_data['employees'] = []
+    for emp in dep.employees:
+        emp_data = dict()
+        emp_data['id'] = emp.id
+        emp_data['firstname'] = emp.firstname
+        emp_data['lastname'] = emp.lastname
+        emp_data['email'] = emp.email
+        emp_data['birth_date'] = emp.birth_date
+        emp_data['department_id'] = emp.department_id
+        emp_data['salary'] = emp.salary
+        emp_data['role_id'] = emp.role_id
+        dep_data['employees'].append(emp_data)
+    return jsonify({'department': dep_data})
+
+
+@app.route('/dep', methods=['POST'])
+def create_department():
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    if 'id' not in request.json or 'title' not in request.json:
+        return make_response('Insufficient data in request', 400)
+    data = request.get_json()
+    new_dep = Department(id=data['id'],
+                         title=data['title'],
+                         employees=[])
+    db.session.add(new_dep)
+    db.session.commit()
+    return jsonify({'message': 'new department created'})
+
+
+@app.route('/dep/<int:dep_id>', methods=['PATCH'])
+def patch_department(dep_id):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    dep = Department.query.get(dep_id)
+
+    if not dep:
+        return make_response('Department not found', 404)
+
+    data = request.get_json()
+    if 'title' in data:
+        dep.title = data['title']
+    db.session.commit()
+    return jsonify({'message': 'Employee updated'})
+
+
+@app.route('/dep/<int:dep_id>', methods=['DELETE'])
+def delete_department(dep_id):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    dep = Department.query.get(dep_id)
+
+    if not dep:
+        return make_response('Department not found', 404)
+
+    db.session.delete(dep)
+    db.session.commit()
+    return jsonify({'message': 'Department deleted'})
+
+
+@app.route('/deps/search/<que>', methods=['GET'])
+def search_deps(que):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    departments = Department.query.filter(Department.title.contains(que)).all()
+    output = []
+    for dep in departments:
+        dep_data = dict()
+        dep_data['id'] = dep.id
+        dep_data['title'] = dep.title
+        dep_data['employees'] = []
+        for emp in dep.employees:
+            emp_data = dict()
+            emp_data['salary'] = emp.salary
+            dep_data['employees'].append(emp_data)
+        output.append(dep_data)
+    return jsonify({'departments': output})
+
+
+@app.route('/reqs', methods=['GET'])
+def requests_list():
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+    reqs = eval(f'db.session.query(Request, Employee).filter({request.json["filter"]}).all()')
+    output = []
+    for req in reqs:
+        req_data = dict()
+        req_data['id'] = req[0].id
+        req_data['status'] = req[0].status
+        req_data['sender_id'] = req[1].id
+        req_data['firstname'] = req[1].firstname
+        req_data['lastname'] = req[1].lastname
+        output.append(req_data)
+    return jsonify({'reqs': output})
+
+
+@app.route('/req/<int:req_id>', methods=['GET'])
+def get_request(req_id):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+
+    req = Request.query.get(req_id)
+    if not req:
+        return make_response('Request not found', 404)
+
+    req_data = dict()
+    req_data['id'] = req.id
+    req_data['sender'] = req.sender
+    req_data['change_department_id'] = req.change_department_id
+    req_data['increase_salary'] = req.increase_salary
+    req_data['status'] = req.status
+
+    return jsonify({'req': req_data})
+
+
+@app.route('/req', methods=['POST'])
+def create_request():
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+
+    if ('sender' not in request.json
+        or 'change_department_id' not in request.json
+        or 'increase_salary' not in request.json):
+        return make_response('Insufficient data in request', 400)
+    data = request.get_json()
+
+    new_req = Request(sender=data['sender'],
+                      change_department_id=data['change_department_id'],
+                      increase_salary=data['increase_salary'],
+                      status=0)
+    db.session.add(new_req)
+    db.session.commit()
+    return jsonify({'message': 'new request created'})
+
+
+@app.route('/req/<int:req_id>', methods=['PATCH'])
+def patch_request(req_id):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    valid = validate_token(request.json['token'])
+    if valid.status_code != 200:
+        return make_response(valid.response, valid.status_code)
+
+    req = Request.query.get(req_id)
+
+    if not req:
+        return make_response('Request not found', 404)
+
+    data = request.get_json()
+    if 'status' in data:
+        req.status = data['status']
+    db.session.commit()
+    return jsonify({'message': 'Request updated'})
+
+
+@app.route('/api_login', methods=['GET', 'POST'])
+def login():
+    if not request.json:
+        return redirect(url_for('general.departments_page'))
+    if 'email' not in request.json or 'password' not in request.json:
+        return make_response('Insufficient data in request', 400)
+    email = request.json['email']
+    password = request.json['password']
+    if not email or not password:
+        return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
+
+    emp = Employee.query.filter_by(email=email).first()
+
+    if not emp:
+        return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
+
+    if check_password_hash(emp.password, password):
+        token = jwt.encode({'id': emp.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)},
+                           app.config['SECRET_KEY'], algorithm='HS256')
+        """
+        emp_data = {'id': emp.id,
+                    'firstname': emp.firstname,
+                    'lastname': emp.lastname,
+                    'email': emp.email,
+                    'department_id': emp.department_id,
+                    'salary': emp.salary,
+                    'birth_date': emp.birth_date,
+                    'role_id': emp.role_id}
+        """
+        return jsonify({'token': token,
+                        'current_user_id': emp.id,
+                        'department_id': emp.department_id,
+                        'role_id': emp.role_id})
+
+    return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
+
+
+@app.route('/api_register', methods=['GET', 'POST'])
+def register():
+    if not request.json:
+        return redirect(url_for('general.departments_page'))
+    if ('firstname' not in request.json
+            or 'lastname' not in request.json
+            or 'email' not in request.json
+            or 'password' not in request.json
+            or 'dep_title' not in request.json
+            or 'birth_date' not in request.json):
+        return make_response('Insufficient data in request', 400)
+    firstname = request.json['firstname']
+    lastname = request.json['lastname']
+    email = request.json['email']
+    password = request.json['password']
+    dep_title = request.json['dep_title']
+    birth_date = request.json['birth_date']
+    role_id = 3
+    if (not firstname
+            or not lastname
+            or not email
+            or not password
+            or not dep_title
+            or not birth_date):
+        return make_response('Insufficient data in request', 400)
+    hashed_password = generate_password_hash(password[0])
+    dep = Department.query.filter_by(title=dep_title).first()
+    employee = Employee(firstname=firstname,
+                        lastname=lastname,
+                        birth_date=birth_date,
+                        email=email,
+                        password=hashed_password,
+                        department_id=dep.id,
+                        role_id=role_id,
+                        salary=0)
+    db.session.add(employee)
+    db.session.commit()
+    return make_response('Employee registered', 201)
+
 
 if __name__ == '__main__':
-    app.run(debug=DEBUG)
+    app.run(debug=True)

@@ -19,16 +19,16 @@
         <p class="text-center">There are currently no requests.</p>
     {% else %}
     {% for request in requests %}
-        <a class="text-dark" href="{{ url_for('general.request_page', request_id=request[0].id) }}"
+        <a class="text-dark" href="{{ url_for('general.request_page', request_id=request['id']) }}"
            style="text-decoration: none">
             <div class="content-section d-flex justify-content-between"
                  style="min-width: 200px;">
-                <div>Sender: {{ request[1].firstname }} {{ request[1].lastname }} ({{ request[1].id }})</div>
+                <div>Sender: {{ request['firstname'] }} {{ request['lastname'] }} ({{ request['id'] }})</div>
                 <div>Status:
-                    {% if request[0].status == 0 %}
+                    {% if request['status'] == 0 %}
                         <b style="color:blue">Processing</b>
                     {% else %}
-                        {% if request[0].status == 1 %}
+                        {% if request['status'] == 1 %}
                             <b style="color:green">Accepted</b>
                         {% else %}
                             <b style="color:red">Declined</b>

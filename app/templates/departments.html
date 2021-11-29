@@ -20,20 +20,20 @@
     {% else %}
     {% for department in departments %}
         <div style="float: right">
-            {% if current_user.__class__.__name__ != 'AnonymousUserMixin' %}
-                {% if current_user.role.id == 4 %}
+            {% if 'token' in session %}
+                {% if session['role_id'] == 4 %}
                     <a class="btn btn-primary"
-                        href="/admin/department/edit/?id={{ department[0].id }}&url=%2Fadmin%2Fdepartment%2F">
+                        href="/admin/department/edit/?id={{ department[0]['id'] }}&url=%2Fadmin%2Fdepartment%2F">
                         Edit
                     </a>
                 {% endif %}
             {% endif %}
         </div>
-        <a class="text-dark" href="{{ url_for('general.department_page', department_id=department[0].id) }}"
+        <a class="text-dark" href="{{ url_for('general.department_page', department_id=department[0]['id']) }}"
            style="text-decoration: none">
             <div class="content-section d-flex justify-content-between"
                  style="min-width: 200px;">
-                <div>Title: {{ department[0].title }}</div>
+                <div>Title: {{ department[0]['title'] }}</div>
                 <div>Avg. salary: {{ department[1] }}$</div>
             </div>
         </a>

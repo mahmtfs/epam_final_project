@@ -34,8 +34,8 @@
                             Requests
                         </a>
                     </li>
-                    {% if current_user.__class__.__name__ != 'AnonymousUserMixin' %}
-                        {% if current_user.role.id == 4 %}
+                    {% if 'current_user' in session %}
+                        {% if session['current_user']['role_id'] == 4 %}
                             <li class="nav-item">
                                 <a class="nav-link" href="/admin">
                                     Admin
@@ -50,7 +50,7 @@
                         {% block search %}
                         {% endblock %}
                     </li>
-                    {% if current_user.is_authenticated %}
+                    {% if 'token' in session %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('auth.profile') }}">Profile</a>
                         </li>
