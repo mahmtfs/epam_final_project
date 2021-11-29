@@ -230,6 +230,8 @@ def get_all_departments():
         return make_response('Insufficient data in request', 400)
     if 'token' not in request.json:
         return make_response('No token in request', 400)
+    elif 'register' not in request.json:
+        return make_response('Bad request', 400)
     valid = validate_token(request.json['token'])
     if valid.status_code != 200:
         return make_response(valid.response, valid.status_code)
