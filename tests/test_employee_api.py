@@ -40,4 +40,4 @@ def test_get_employees():
                                 json={'token': token})
         assert response.status_code == 200
     except Exception as e:
-        logger.error(f'{name} failed ({type(e).__name__}:{e})')
+        logger.error(f'Sign in test failed ({type(e).__name__}:{e})')
