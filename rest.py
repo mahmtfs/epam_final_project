@@ -498,8 +498,10 @@ def login():
     password = request.json['password']
     if not email or not password:
         return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
-
-    emp = Employee.query.filter_by(email=email).first()
+    try:
+        emp = Employee.query.filter_by(email=email).first()
+    except:
+        emp = None
 
     if not emp:
         return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
