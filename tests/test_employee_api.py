@@ -19,10 +19,9 @@ def test_register():
         assert response.status_code == 201
     except Exception as e:
         logger.error(f'Register test failed ({type(e).__name__}:{e})')
+        pytest.xfail(f'Register test failed ({type(e).__name__}:{e})')
     
     
-
-
 def test_login():
     try:
         response = requests.post('https://pure-caverns-26611.herokuapp.com/api_login', json={'email': 'test@gmail.com',
@@ -33,6 +32,8 @@ def test_login():
         assert 'token' in response.json() is True
     except Exception as e:
         logger.error(f'Login test failed ({type(e).__name__}:{e})')
+        pytest.xfail(f'Login test failed ({type(e).__name__}:{e})')
+        
 
 def test_get_employees():
     try:
@@ -41,3 +42,4 @@ def test_get_employees():
         assert response.status_code == 200
     except Exception as e:
         logger.error(f'Sign in test failed ({type(e).__name__}:{e})')
+        pytest.xfail(f'Sign in test failed ({type(e).__name__}:{e})')
