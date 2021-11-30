@@ -1,6 +1,7 @@
 from flask import request, url_for
 import requests
 import requests_mock
+import pytest
 from logger.logs import logger
 
 
