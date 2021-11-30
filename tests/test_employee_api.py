@@ -21,7 +21,7 @@ def test_register():
     except Exception as e:
         logger.error(f'Register test failed ({type(e).__name__}:{e})')
         print(f'Register test failed ({type(e).__name__}:{e})')
-        pytest.xfail(f'Register test failed ({type(e).__name__}:{e})')
+        pytest.fail(f'Register test failed ({type(e).__name__}:{e})')
     
     
 def test_login():
@@ -35,7 +35,7 @@ def test_login():
     except Exception as e:
         logger.error(f'Login test failed ({type(e).__name__}:{e})')
         print(f'Login test failed ({type(e).__name__}:{e})')
-        pytest.xfail(f'Login test failed ({type(e).__name__}:{e})')
+        pytest.fail(f'Login test failed ({type(e).__name__}:{e})')
         
 
 def test_get_employees():
@@ -46,4 +46,4 @@ def test_get_employees():
     except Exception as e:
         logger.error(f'Sign in test failed ({type(e).__name__}:{e})')
         print(f'Sign in test failed ({type(e).__name__}:{e})')
-        pytest.xfail(f'Sign in test failed ({type(e).__name__}:{e})')
+        pytest.fail(f'Sign in test failed ({type(e).__name__}:{e})')
