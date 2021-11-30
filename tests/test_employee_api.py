@@ -20,6 +20,7 @@ def test_register():
         assert response.status_code == 201
     except Exception as e:
         logger.error(f'Register test failed ({type(e).__name__}:{e})')
+        print(f'Register test failed ({type(e).__name__}:{e})')
         pytest.xfail(f'Register test failed ({type(e).__name__}:{e})')
     
     
@@ -33,6 +34,7 @@ def test_login():
         assert 'token' in response.json() is True
     except Exception as e:
         logger.error(f'Login test failed ({type(e).__name__}:{e})')
+        print(f'Login test failed ({type(e).__name__}:{e})')
         pytest.xfail(f'Login test failed ({type(e).__name__}:{e})')
         
 
@@ -43,4 +45,5 @@ def test_get_employees():
         assert response.status_code == 200
     except Exception as e:
         logger.error(f'Sign in test failed ({type(e).__name__}:{e})')
+        print(f'Sign in test failed ({type(e).__name__}:{e})')
         pytest.xfail(f'Sign in test failed ({type(e).__name__}:{e})')
