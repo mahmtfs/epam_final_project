@@ -25,18 +25,16 @@ def validate_token():
         return False
     try:
         jwt.decode(session['token'], SECRET_KEY, algorithms=['HS256'])
-    except jwt.InvalidSignatureError:
-        return {'token': session['token'], 'secret': SECRET_KEY}
     except jwt.ExpiredSignatureError:
         session.pop('token', None)
         session.pop('current_user_id', None)
         session.pop('department_id', None)
         session.pop('role_id', None)
-        return {'message': 'expired'}
+        return False
     session['token'] = jwt.encode({'id': session['current_user_id'],
                                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)},
-                                  SECRET_KEY, algorithm='HS256')
-    return {'message': 'success'}
+                                   SECRET_KEY, algorithm='HS256')
+    return True
 
 
 @auth.route('/register', methods=['POST', 'GET'])
@@ -187,7 +185,6 @@ def reset_token(token):
 
 @general.route('/', methods=['POST', 'GET'])
 def departments_page():
-    return validate_token()
     if not validate_token():
         return redirect(url_for('auth.login'))
     form = SearchDepartmentForm()
