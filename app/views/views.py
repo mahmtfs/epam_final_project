@@ -51,7 +51,7 @@ def register():
                                  json={'firstname': form.firstname.data,
                                        'lastname': form.lastname.data,
                                        'email': form.email.data,
-                                       'password': form.password.data,
+                                       'password': form.password.raw_data[0],
                                        'birth_date': form.birth_date.raw_data[0],
                                        'dep_title': form.department.data})
         if response.status_code == 201:
