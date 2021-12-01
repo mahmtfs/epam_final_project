@@ -552,7 +552,7 @@ def register():
             or not dep_title
             or not birth_date):
         return make_response('Insufficient data in request', 400)
-    hashed_password = generate_password_hash(password[0])
+    hashed_password = generate_password_hash(password).decode('ascii')
     dep = Department.query.filter_by(title=dep_title).first()
     employee = Employee(firstname=firstname,
                         lastname=lastname,
