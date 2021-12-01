@@ -77,7 +77,6 @@ def login():
                                                                    'password': password})
                 session.permanent = True
                 session['token'] = response.json()['token']
-                return {'login token': session['token']}
                 session['current_user_id'] = response.json()['current_user_id']
                 session['department_id'] = response.json()['department_id']
                 session['role_id'] = response.json()['role_id']
