@@ -52,7 +52,7 @@ def register():
                                        'lastname': form.lastname.raw_data,
                                        'email': form.email.raw_data,
                                        'password': form.password.raw_data,
-                                       'birth_date': form.birth_date.raw_data,
+                                       'birth_date': form.birth_date.raw_data[0],
                                        'dep_title': form.department.raw_data[0]})
         if response.status_code == 201:
             flash('Your account has been created!', 'success')
