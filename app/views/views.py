@@ -48,12 +48,12 @@ def register():
     form.department.choices = [department['title'] for department in response_deps.json()['departments']]
     if form.validate_on_submit():
         response = requests.post(f'{URL}/api_register',
-                                 json={'firstname': form.firstname.raw_data,
-                                       'lastname': form.lastname.raw_data,
-                                       'email': form.email.raw_data,
-                                       'password': form.password.raw_data,
-                                       'birth_date': form.birth_date.raw_data[0],
-                                       'dep_title': form.department.raw_data[0]})
+                                 json={'firstname': form.firstname.data,
+                                       'lastname': form.lastname.data,
+                                       'email': form.email.data,
+                                       'password': form.password.data,
+                                       'birth_date': form.birth_date.data,
+                                       'dep_title': form.department.data})
         if response.status_code == 201:
             flash('Your account has been created!', 'success')
             return redirect(url_for('auth.login'))
