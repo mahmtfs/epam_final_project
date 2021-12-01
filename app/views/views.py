@@ -33,7 +33,7 @@ def validate_token():
         return False
     session['token'] = jwt.encode({'id': session['current_user_id'],
                                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)},
-                                  SECRET_KEY, algorithm='HS256').decode('utf-8')
+                                  SECRET_KEY, algorithm='HS256')
     return True
 
 
