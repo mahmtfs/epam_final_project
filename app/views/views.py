@@ -25,6 +25,9 @@ def validate_token():
         return False
     try:
         jwt.decode(session['token'], SECRET_KEY, algorithms=['HS256'])
+    except jwt.InvalidSignatureError:
+        print(session['token'])
+        return False
     except jwt.ExpiredSignatureError:
         session.pop('token', None)
         session.pop('current_user_id', None)
