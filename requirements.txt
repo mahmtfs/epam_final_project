@@ -51,6 +51,7 @@ packaging==21.3
 passlib==1.7.4
 platformdirs==2.4.0
 pluggy==1.0.0
+psycopg2==2.9.2
 py==1.11.0
 pyasn1==0.4.8
 pycparser==2.21
