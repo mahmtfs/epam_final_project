@@ -22,7 +22,7 @@ general = Blueprint('general', __name__)
 
 def validate_token():
     if 'token' not in session:
-        return {'message': 'no token'}
+        return False
     try:
         jwt.decode(session['token'], SECRET_KEY, algorithms=['HS256'])
     except jwt.InvalidSignatureError:
