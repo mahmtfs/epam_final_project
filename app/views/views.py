@@ -25,6 +25,8 @@ def validate_token():
         return False
     try:
         jwt.decode(session['token'], SECRET_KEY, algorithms=['HS256'])
+    except jwt.InvalidSignatureError:
+        return {'token': session['token'], 'secret': SECRET_KEY}
     except jwt.ExpiredSignatureError:
         session.pop('token', None)
         session.pop('current_user_id', None)
@@ -64,6 +66,7 @@ def register():
 
 @auth.route('/login', methods=['POST', 'GET'])
 def login():
+    return validate_token()
     if validate_token():
         flash('You are already logged in', 'info')
         return redirect(url_for('general.departments_page'))
