@@ -22,7 +22,7 @@ general = Blueprint('general', __name__)
 
 def validate_token():
     if 'token' not in session:
-        return False
+        return {'message': 'no token'}
     try:
         jwt.decode(session['token'], SECRET_KEY, algorithms=['HS256'])
     except jwt.InvalidSignatureError:
@@ -32,11 +32,11 @@ def validate_token():
         session.pop('current_user_id', None)
         session.pop('department_id', None)
         session.pop('role_id', None)
-        return False
+        return {'message': 'expired'}
     session['token'] = jwt.encode({'id': session['current_user_id'],
                                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)},
                                   SECRET_KEY, algorithm='HS256')
-    return True
+    return {'message': 'success'}
 
 
 @auth.route('/register', methods=['POST', 'GET'])
@@ -66,7 +66,6 @@ def register():
 
 @auth.route('/login', methods=['POST', 'GET'])
 def login():
-    return validate_token()
     if validate_token():
         flash('You are already logged in', 'info')
         return redirect(url_for('general.departments_page'))
@@ -187,6 +186,7 @@ def reset_token(token):
 
 @general.route('/', methods=['POST', 'GET'])
 def departments_page():
+    return validate_token()
     if not validate_token():
         return redirect(url_for('auth.login'))
     form = SearchDepartmentForm()
