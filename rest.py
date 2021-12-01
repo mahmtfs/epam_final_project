@@ -507,7 +507,7 @@ def login():
 
     if check_password_hash(emp.password, password):
         token = jwt.encode({'id': emp.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)},
-                           app.config['SECRET_KEY'], algorithm='HS256')
+                           app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
         """
         emp_data = {'id': emp.id,
                     'firstname': emp.firstname,
