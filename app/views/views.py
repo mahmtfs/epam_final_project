@@ -26,8 +26,7 @@ def validate_token():
     try:
         jwt.decode(session['token'], SECRET_KEY, algorithms=['HS256'])
     except jwt.InvalidSignatureError:
-        print(session['token'])
-        return False
+        return session['token']
     except jwt.ExpiredSignatureError:
         session.pop('token', None)
         session.pop('current_user_id', None)
@@ -37,7 +36,7 @@ def validate_token():
     session['token'] = jwt.encode({'id': session['current_user_id'],
                                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)},
                                   SECRET_KEY, algorithm='HS256')
-    return True
+    return 'abac'
 
 
 @auth.route('/register', methods=['POST', 'GET'])
@@ -68,6 +67,7 @@ def register():
 @auth.route('/login', methods=['POST', 'GET'])
 def login():
     if validate_token():
+        return validate_token()
         flash('You are already logged in', 'info')
         return redirect(url_for('general.departments_page'))
     form = LoginForm()
