@@ -4,7 +4,7 @@ import secrets
 
 DEBUG = False
 TESTING = False
-SECRET_KEY = secrets.token_hex(16)
+SECRET_KEY = 'dopy'
 
 MAIL_SERVER = 'smtp.gmail.com'
 MAIL_PORT = 465
