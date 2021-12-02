@@ -23,7 +23,7 @@ class Department(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), unique=True, nullable=False)
-    #salary = db.Column(db.Float, nullable=False)
+    salary = db.Column(db.Float)
     employees = db.relationship('Employee', backref='department', lazy=True)
 
     def get_departments(self):
