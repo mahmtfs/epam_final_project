@@ -11,7 +11,7 @@
                 Salary: {{ employee['salary'] }}$<br>
             </p>
         </div>
-        {% if employee['role_id'] != ADMIN_ROLE_ID %}
+        {% if employee['role_id'] != 1 %}
             <a class="btn btn-primary" href="{{ url_for('general.send_request') }}">Request Changes</a>
         {% else %}
         {% endif %}
