@@ -21,7 +21,7 @@
     {% for employee in employees %}
         <div style="float: right">
             {% if 'token' in session %}
-                {% if session['role_id'] == ADMIN_ROLE_ID %}
+                {% if session['role_id'] == 1 %}
                     <a class="btn btn-primary"
                         href="/admin/employee/edit/?id={{ employee.id }}&url=%2Fadmin%2Fdepartment%2F">
                         Edit
