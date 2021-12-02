@@ -35,7 +35,7 @@
                         </a>
                     </li>
                     {% if 'current_user' in session %}
-                        {% if session['current_user']['role_id'] == config.ADMIN_ROLE_ID %}
+                        {% if session['current_user']['role_id'] == 1 %}
                             <li class="nav-item">
                                 <a class="nav-link" href="/admin">
                                     Admin
