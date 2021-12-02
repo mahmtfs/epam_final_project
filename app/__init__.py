@@ -52,7 +52,7 @@ class MyModelView(ModelView):
 
     def is_accessible(self):
         try:
-            if session['role_id'] == 4:
+            if session['role_id'] == config.ADMIN_ROLE_ID:
                 return True
         except AttributeError:
             return None
@@ -64,7 +64,7 @@ class MyModelView(ModelView):
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
         try:
-            if session['role_id'] == 4:
+            if session['role_id'] == config.ADMIN_ROLE_ID:
                 return True
         except KeyError:
             return None
