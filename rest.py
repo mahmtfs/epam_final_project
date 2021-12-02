@@ -560,7 +560,7 @@ def register():
                         password=hashed_password,
                         department_id=dep.id,
                         role_id=role_id,
-                        salary=0)
+                        salary=dep.salary)
     db.session.add(employee)
     db.session.commit()
     return make_response('Employee registered', 201)
