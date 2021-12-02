@@ -521,8 +521,7 @@ def login():
         return jsonify({'token': token,
                         'current_user_id': emp.id,
                         'department_id': emp.department_id,
-                        'role_id': emp.role_id,
-                        'secret': app.config['SECRET_KEY']})
+                        'role_id': emp.role_id})
 
     return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
