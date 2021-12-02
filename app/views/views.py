@@ -367,7 +367,7 @@ def request_page(request_id):
         flash(f'Something went wrong {response_patch_emp.status_code}', 'danger')
         return redirect(url_for('general.departments_page'))
     req = response_req.json()['req']
-    if req['sender'] != session['current_user_id'] and session['role_id'] != 4:
+    if req['sender'] != session['current_user_id'] and session['role_id'] != ADMIN_ROLE_ID:
         flash('Access to this page is denied for unauthorized users!', 'danger')
         return redirect(url_for('general.requests_page'))
     response_emp = requests.get(f'{URL}/emp/{req["sender"]}',
@@ -377,7 +377,8 @@ def request_page(request_id):
         return redirect(url_for('general.departments_page'))
     sender = response_emp.json()['user']
     if req['change_department_id']:
-        response_dep = requests.get(f'{URL}/dep/{req["change_department_id"]}')
+        response_dep = requests.get(f'{URL}/dep/{req["change_department_id"]}',
+                                    json={'token': session['token']})
         if response_dep.status_code != 200:
             flash(f'Something went wrong {response_patch_emp.status_code}', 'danger')
             return redirect(url_for('general.departments_page'))
