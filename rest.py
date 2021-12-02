@@ -172,6 +172,8 @@ def patch_employee(emp_id):
         emp.password = generate_password_hash(data['password'])
     if 'department_id' in data:
         emp.department_id = data['department_id']
+    if 'salary' in data:
+        emp.salary = data['salary']
     db.session.commit()
     return jsonify({'message': 'Employee updated'})
 
