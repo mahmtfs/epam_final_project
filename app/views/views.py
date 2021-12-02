@@ -5,7 +5,7 @@ import requests
 from flask import flash, redirect, url_for, Blueprint, render_template, request, session
 from flask_mail import Message
 from app.extensions import mail
-from config import RESET_PASSWORD_MESSAGE, RESET_PASSWORD_WARNING, SECRET_KEY, URL
+from config import RESET_PASSWORD_MESSAGE, RESET_PASSWORD_WARNING, SECRET_KEY, URL, ADMIN_ROLE_ID, REGULAR_ROLE_ID
 from app.views.forms import (RegistrationForm,
                              LoginForm,
                              RequestForm,
@@ -273,20 +273,17 @@ def send_request():
     if not validate_token():
         flash('You need to be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
-    if session['role_id'] == 4:
+    if session['role_id'] == ADMIN_ROLE_ID:
         flash('Only regular users can request changes.', 'warning')
         return redirect(url_for('general.departments_page'))
     form = RequestForm()
     response_deps = requests.get(f'{URL}/deps',
                                  json={'token': session['token']})
-    #departments = [department for department in Department.query.all()]
     response_dep = requests.get(f'{URL}/dep/{session["department_id"]}',
                                 json={'token': session['token']})
     departments = response_deps.json()['departments']
     department = response_dep.json()['department']
-    #department_to_remove = Department.query.get(session['current_user']['department_id'])
     departments.remove(department)
-    #departments.remove(department_to_remove)
     form.change_department.choices = [''] + [dep['title']
                                              for dep in departments]
     form.increase_salary.choices = [''] + ['1%', '5%', '10%', '20%']
@@ -296,7 +293,6 @@ def send_request():
                 response_change_dep = requests.get(f'{URL}/deps',
                                                    json={'token': session['token'],
                                                          'filter': f'title="{form.change_department.data}"'})
-                #change_department = Department.query.filter_by(title=form.change_department.data).first()
                 change_department = response_change_dep.json()['departments'][0]['id']
             else:
                 change_department = 0
@@ -321,17 +317,12 @@ def send_request():
 
 @general.route('/requests', methods=['POST', 'GET'])
 def requests_page():
-    """
-    if current_user.role_id != 4:
-        flash('Permission to access this page denied. This is an admin-only page.', 'danger')
-        return redirect(url_for('general.departments_page'))
-    """
     if not validate_token():
         flash('You need to be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
     form = SearchRequestForm()
     if form.search.data:
-        if session['role_id'] == 4:
+        if session['role_id'] == ADMIN_ROLE_ID:
             response_reqs = requests.get(f'{URL}/reqs',
                                          json={'token': session['token'],
                                                'filter': f'or_(Employee.firstname.contains("{form.search.data}"),'
@@ -348,7 +339,7 @@ def requests_page():
                                                          f' {session["current_user_id"]} == Request.sender,'
                                                          f' Employee.id == {session["current_user_id"]}'})
     else:
-        if session['role_id'] == 4:
+        if session['role_id'] == ADMIN_ROLE_ID:
             response_reqs = requests.get(f'{URL}/reqs',
                                          json={'token': session['token'],
                                                'filter': f'Request.status == 0,'
@@ -394,7 +385,7 @@ def request_page(request_id):
     else:
         change_department = None
     form = None
-    if session['role_id'] == 4:# and request.status == 0:
+    if session['role_id'] == ADMIN_ROLE_ID:
         form = HandleRequestForm()
         if form.validate_on_submit():
             #Check in case where different admins process the same request
