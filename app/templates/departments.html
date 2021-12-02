@@ -21,7 +21,7 @@
     {% for department in departments %}
         <div style="float: right">
             {% if 'token' in session %}
-                {% if session['role_id'] == 4 %}
+                {% if session['role_id'] == ADMIN_ROLE_ID %}
                     <a class="btn btn-primary"
                         href="/admin/department/edit/?id={{ department[0]['id'] }}&url=%2Fadmin%2Fdepartment%2F">
                         Edit
