@@ -24,3 +24,6 @@ RESET_PASSWORD_WARNING = '\nIf you did not make this request, simply ignore this
 URL = 'https://departments-flask-app.herokuapp.com'
 
 SQLALCHEMY_POOL_RECYCLE = 90
+
+ADMIN_ROLE_ID = 1
+REGULAR_ROLE_ID = 2
