@@ -364,7 +364,7 @@ def request_page(request_id):
     response_req = requests.get(f'{URL}/req/{request_id}',
                                 json={'token': session['token']})
     if response_req.status_code != 200:
-        flash('Something went wrong', 'danger')
+        flash(f'Something went wrong {response_patch_emp.status_code}', 'danger')
         return redirect(url_for('general.departments_page'))
     req = response_req.json()['req']
     if req['sender'] != session['current_user_id'] and session['role_id'] != 4:
@@ -379,7 +379,7 @@ def request_page(request_id):
     if req['change_department_id']:
         response_dep = requests.get(f'{URL}/dep/{req["change_department_id"]}')
         if response_dep.status_code != 200:
-            flash('Something went wrong', 'danger')
+            flash(f'Something went wrong {response_patch_emp.status_code}', 'danger')
             return redirect(url_for('general.departments_page'))
         change_department = response_dep.json()['department']
     else:
@@ -398,7 +398,7 @@ def request_page(request_id):
                                                         json={'token': session['token'],
                                                               'department_id': req['change_department_id']})
                     if response_patch_emp.status_code != 200:
-                        flash('Something went wrong', 'danger')
+                        flash(f'Something went wrong {response_patch_emp.status_code}', 'danger')
                         return redirect(url_for('general.departments_page'))
                 if req['increase_salary']:
                     response_patch_emp = requests.patch(f'{URL}/emp/{req["sender"]}',
@@ -413,14 +413,14 @@ def request_page(request_id):
                                                     json={'token': session['token'],
                                                           'status': 1})
                 if response_patch_req.status_code != 200:
-                    flash('Something went wrong', 'danger')
+                    flash(f'Something went wrong {response_patch_emp.status_code}', 'danger')
                     return redirect(url_for('general.departments_page'))
             else:
                 response_patch_req = requests.patch(f'{URL}/req/{req["id"]}',
                                                     json={'token': session['token'],
                                                           'status': 2})
                 if response_patch_req.status_code != 200:
-                    flash('Something went wrong', 'danger')
+                    flash(f'Something went wrong {response_patch_emp.status_code}', 'danger')
                     return redirect(url_for('general.departments_page'))
             return redirect(url_for('general.requests_page'))
     return render_template('request.html',
