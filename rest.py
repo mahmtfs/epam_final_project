@@ -544,7 +544,7 @@ def register():
     password = request.json['password']
     dep_title = request.json['dep_title']
     birth_date = request.json['birth_date']
-    role_id = 3
+    role_id = 2
     if (not firstname
             or not lastname
             or not email
