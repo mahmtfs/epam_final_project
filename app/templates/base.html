@@ -29,12 +29,12 @@
                             About
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('general.requests_page') }}">
-                            Requests
-                        </a>
-                    </li>
                     {% if 'current_user_id' in session %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('general.requests_page') }}">
+                                Requests
+                            </a>
+                        </li>
                         {% if session['role_id'] == 1 %}
                             <li class="nav-item">
                                 <a class="nav-link" href="/admin">
@@ -42,7 +42,6 @@
                                 </a>
                             </li>
                         {% endif %}
-                    {% else %}
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">
