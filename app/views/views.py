@@ -152,7 +152,7 @@ def reset_request():
         return redirect(url_for('general.departments_page'))
     form = RequestResetForm()
     if form.validate_on_submit():
-        response = requests.get(f'{URL}/emp/{session["current_user"].id}',
+        response = requests.get(f'{URL}/emp/{session["current_user_id"]}',
                                 json={'token': session['token']})
         employee = response.json()
         send_reset_email(employee)
