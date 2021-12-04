@@ -140,9 +140,10 @@ def patch_employee(emp_id):
         return make_response('Insufficient data in request', 400)
     if 'token' not in request.json:
         return make_response('No token in request', 400)
-    valid = validate_token(request.json['token'])
-    if valid.status_code != 200:
-        return make_response(valid.response, valid.status_code)
+    if request.json['token']:
+        valid = validate_token(request.json['token'])
+        if valid.status_code != 200:
+            return make_response(valid.response, valid.status_code)
     emp = Employee.query.get(emp_id)
 
     if not emp:
