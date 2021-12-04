@@ -54,7 +54,7 @@ class MyModelView(ModelView):
         try:
             if session['role_id'] == 1:
                 return True
-        except AttributeError:
+        except KeyError:
             return None
 
     def inaccessible_callback(self, name, **kwargs):
