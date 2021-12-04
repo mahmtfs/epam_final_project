@@ -2,8 +2,10 @@ import jwt
 import datetime
 from flask import request, jsonify, make_response, redirect, url_for, session
 from flask_bcrypt import generate_password_hash, check_password_hash
+import requests
 from app import app
 from app import db
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from sqlalchemy import or_
 from app.models.models import (Employee,
                                Department,
@@ -18,29 +20,6 @@ def validate_token(token):
     except jwt.ExpiredSignatureError:
         return make_response('token invalid', 401)
     return make_response('token is valid', 200)
-
-
-"""
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-
-        if 'token' in request.json():
-            token = request.json['token']
-        if not token:
-            return jsonify({'message': 'Token is missing'}), 401
-
-        try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            current_user = Employee.query.get(data['id'])
-        except:
-            return jsonify({'message': 'token is invalid'}), 401
-
-        return f(current_user, *args, **kwargs)
-
-    return decorated
-"""
 
 
 @app.route('/emps', methods=['GET'])
@@ -76,9 +55,10 @@ def get_employee(emp_id):
         return make_response('Insufficient data in request', 400)
     if 'token' not in request.json:
         return make_response('No token in request', 400)
-    valid = validate_token(request.json['token'])
-    if valid.status_code != 200:
-        return make_response(valid.response, valid.status_code)
+    if request.json['token']:
+        valid = validate_token(request.json['token'])
+        if valid.status_code != 200:
+            return make_response(valid.response, valid.status_code)
 
     emp = Employee.query.get(emp_id)
 
@@ -105,9 +85,10 @@ def get_employee_email(email):
         return make_response('Insufficient data in request', 400)
     if 'token' not in request.json:
         return make_response('No token in request', 400)
-    valid = validate_token(request.json['token'])
-    if valid.status_code != 200:
-        return make_response(valid.response, valid.status_code)
+    if request.json['token']:
+        valid = validate_token(request.json['token'])
+        if valid.status_code != 200:
+            return make_response(valid.response, valid.status_code)
     emp = Employee.query.filter_by(email=email).first()
 
     if not emp:

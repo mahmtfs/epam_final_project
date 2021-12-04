@@ -142,7 +142,7 @@ def verify_reset_token(token):
     except:
         return None
     response_emp = requests.get(f'{URL}/emp/{employee_id}',
-                                json={'token': session['token']})
+                                json={'token': None})
     return response_emp.json()['user']
 
 
@@ -152,9 +152,9 @@ def reset_request():
         return redirect(url_for('general.departments_page'))
     form = RequestResetForm()
     if form.validate_on_submit():
-        response = requests.get(f'{URL}/emp/{session["current_user_id"]}',
-                                json={'token': session['token']})
-        employee = response.json()
+        response = requests.get(f'{URL}/emp/{form.email.data}',
+                                json={'token': None})
+        employee = response.json()['user']
         send_reset_email(employee)
         flash('An email with reset password instructions has been sent.', 'info')
         return redirect(url_for('auth.login'))
@@ -172,7 +172,7 @@ def reset_token(token):
     form = ResetPasswordForm()
     if form.validate_on_submit():
         response = requests.patch(f'{URL}/emp/{employee["id"]}',
-                                  json={'token': session['token'],
+                                  json={'token': None,
                                         'password': form.password.data})
         if response.status_code != 200:
             flash('Something went wrong', 'danger')
