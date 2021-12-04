@@ -151,7 +151,7 @@ def patch_employee(emp_id):
 
     data = request.get_json()
     if 'password' in data:
-        emp.password = generate_password_hash(data['password'])
+        emp.password = generate_password_hash(data['password']).decode('ascii')
     if 'department_id' in data:
         emp.department_id = data['department_id']
     if 'salary' in data:
