@@ -293,6 +293,39 @@ def get_department(dep_id):
     return jsonify({'department': dep_data})
 
 
+@app.route('/dep/<title>', methods=['GET'])
+def get_employee_email(title):
+    if not request.json:
+        return make_response('Insufficient data in request', 400)
+    if 'token' not in request.json:
+        return make_response('No token in request', 400)
+    if request.json['token']:
+        valid = validate_token(request.json['token'])
+        if valid.status_code != 200:
+            return make_response(valid.response, valid.status_code)
+    dep = Department.query.filter_by(title=title).first()
+
+    if not dep:
+        return make_response('Department not found', 404)
+
+    dep_data = dict()
+    dep_data['id'] = dep.id
+    dep_data['title'] = dep.title
+    dep_data['employees'] = []
+    for emp in dep.employees:
+        emp_data = dict()
+        emp_data['id'] = emp.id
+        emp_data['firstname'] = emp.firstname
+        emp_data['lastname'] = emp.lastname
+        emp_data['email'] = emp.email
+        emp_data['birth_date'] = emp.birth_date
+        emp_data['department_id'] = emp.department_id
+        emp_data['salary'] = emp.salary
+        emp_data['role_id'] = emp.role_id
+        dep_data['employees'].append(emp_data)
+    return jsonify({'department': dep_data})
+
+
 @app.route('/dep', methods=['POST'])
 def create_department():
     if not request.json:
@@ -309,8 +342,7 @@ def create_department():
                          employees=[])
     db.session.add(new_dep)
     db.session.commit()
-    return jsonify({'id': new_dep.id,
-                    'title': new_dep.title})
+    return make_response('Department created', 201)
 
 
 @app.route('/dep/<int:dep_id>', methods=['PATCH'])

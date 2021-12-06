@@ -15,8 +15,7 @@ token = jwt.encode({'id': 1, 'exp': datetime.datetime.utcnow() + datetime.timede
 def test_post():
     try:
         response = requests.post(f'{URL}/dep', json={'token': token, 'title': 'test'})
-        print(response.content)
-        assert response.status_code == 200
+        assert response.status_code == 201
     except Exception as e:
         logger.error(f'Login test failed ({type(e).__name__}:{e})')
         print(f'Login test failed ({type(e).__name__}:{e})')
@@ -25,7 +24,9 @@ def test_post():
 
 def test_get():
     try:
-        response = requests.get(f'{URL}/dep/{dep_id}', json={'token': token})
+        response = requests.get(f'{URL}/dep/test', json={'token': token})
+        global dep_id
+        dep_id = response.json()['department']['id']
         assert response.status_code == 200
     except Exception as e:
         logger.error(f'Login test failed ({type(e).__name__}:{e})')
