@@ -118,8 +118,11 @@ def create_employee():
     data = request.get_json()
 
     hashed_password = generate_password_hash(data['password'])
-
-    new_emp = Employee(firstname=data['firstname'],
+    emps = Employee.query.all()
+    ids = [emp.id for emp in emps]
+    emp_id = max(ids) + 1
+    new_emp = Employee(id=emp_id,
+                       firstname=data['firstname'],
                        lastname=data['lastname'],
                        email=data['email'],
                        password=hashed_password,
@@ -342,7 +345,11 @@ def create_department():
     if 'salary' not in request.json:
         return make_response('Insufficient data in request', 400)
     data = request.get_json()
-    new_dep = Department(title=data['title'],
+    deps = Department.query.all()
+    ids = [dep.id for dep in deps]
+    dep_id = max(ids) + 1
+    new_dep = Department(id=dep_id,
+                         title=data['title'],
                          salary=data['salary'],
                          employees=[])
     db.session.add(new_dep)
