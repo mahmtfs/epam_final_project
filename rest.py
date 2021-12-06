@@ -278,6 +278,7 @@ def get_department(dep_id):
     dep_data = dict()
     dep_data['id'] = dep.id
     dep_data['title'] = dep.title
+    dep_data['salary'] = dep.salary
     dep_data['employees'] = []
     for emp in dep.employees:
         emp_data = dict()
@@ -311,6 +312,7 @@ def get_department_title(title):
     dep_data = dict()
     dep_data['id'] = dep.id
     dep_data['title'] = dep.title
+    dep_data['salary'] = dep.salary
     dep_data['employees'] = []
     for emp in dep.employees:
         emp_data = dict()
@@ -337,8 +339,11 @@ def create_department():
         return make_response(valid.response, valid.status_code)
     if 'title' not in request.json:
         return make_response('Insufficient data in request', 400)
+    if 'salary' not in request.json:
+        return make_response('Insufficient data in request', 400)
     data = request.get_json()
     new_dep = Department(title=data['title'],
+                         salary=data['salary'],
                          employees=[])
     db.session.add(new_dep)
     db.session.commit()
