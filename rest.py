@@ -434,6 +434,16 @@ def requests_list():
         reqs = eval(f'db.session.query(Request, Employee).filter({request.json["filter"]}).all()')
     else:
         reqs = Request.query.all()
+        output = []
+        for req in reqs:
+            req_data = dict()
+            req_data['id'] = req.id
+            req_data['status'] = req.status
+            req_data['sender_id'] = req.id
+            req_data['firstname'] = req.firstname
+            req_data['lastname'] = req.lastname
+            output.append(req_data)
+        return jsonify({'reqs': output})
     output = []
     for req in reqs:
         req_data = dict()
