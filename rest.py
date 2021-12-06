@@ -439,9 +439,7 @@ def requests_list():
             req_data = dict()
             req_data['id'] = req.id
             req_data['status'] = req.status
-            req_data['sender_id'] = req.id
-            req_data['firstname'] = req.firstname
-            req_data['lastname'] = req.lastname
+            req_data['sender_id'] = req.sender
             output.append(req_data)
         return jsonify({'reqs': output})
     output = []
