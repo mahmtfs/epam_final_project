@@ -294,7 +294,7 @@ def get_department(dep_id):
 
 
 @app.route('/dep/<title>', methods=['GET'])
-def get_employee_email(title):
+def get_department_title(title):
     if not request.json:
         return make_response('Insufficient data in request', 400)
     if 'token' not in request.json:
