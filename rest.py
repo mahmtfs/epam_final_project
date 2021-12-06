@@ -430,7 +430,10 @@ def requests_list():
     valid = validate_token(request.json['token'])
     if valid.status_code != 200:
         return make_response(valid.response, valid.status_code)
-    reqs = eval(f'db.session.query(Request, Employee).filter({request.json["filter"]}).all()')
+    if 'filter' in request.json:
+        reqs = eval(f'db.session.query(Request, Employee).filter({request.json["filter"]}).all()')
+    else:
+        reqs = Request.query.all()
     output = []
     for req in reqs:
         req_data = dict()
