@@ -1,11 +1,9 @@
 import jwt
 import datetime
-from flask import request, jsonify, make_response, redirect, url_for, session
+from flask import request, jsonify, make_response
 from flask_bcrypt import generate_password_hash, check_password_hash
-import requests
 from app import app
 from app import db
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from sqlalchemy import or_
 from app.models.models import (Employee,
                                Department,
@@ -304,15 +302,15 @@ def create_department():
     valid = validate_token(request.json['token'])
     if valid.status_code != 200:
         return make_response(valid.response, valid.status_code)
-    if 'id' not in request.json or 'title' not in request.json:
+    if 'title' not in request.json:
         return make_response('Insufficient data in request', 400)
     data = request.get_json()
-    new_dep = Department(id=data['id'],
-                         title=data['title'],
+    new_dep = Department(title=data['title'],
                          employees=[])
     db.session.add(new_dep)
     db.session.commit()
-    return jsonify({'message': 'new department created'})
+    return jsonify({'id': new_dep.id,
+                    'title': new_dep.title})
 
 
 @app.route('/dep/<int:dep_id>', methods=['PATCH'])
@@ -333,7 +331,7 @@ def patch_department(dep_id):
     if 'title' in data:
         dep.title = data['title']
     db.session.commit()
-    return jsonify({'message': 'Employee updated'})
+    return jsonify({'message': 'Department updated'})
 
 
 @app.route('/dep/<int:dep_id>', methods=['DELETE'])
@@ -475,7 +473,7 @@ def patch_request(req_id):
 @app.route('/api_login', methods=['GET', 'POST'])
 def login():
     if not request.json:
-        return redirect(url_for('general.departments_page'))
+        return make_response('Insufficient data in request', 400)
     if 'email' not in request.json or 'password' not in request.json:
         return make_response('Insufficient data in request', 400)
     email = request.json['email']
@@ -503,7 +501,7 @@ def login():
 @app.route('/api_register', methods=['GET', 'POST'])
 def register():
     if not request.json:
-        return redirect(url_for('general.departments_page'))
+        return make_response('Insufficient data in request', 400)
     if ('firstname' not in request.json
             or 'lastname' not in request.json
             or 'email' not in request.json

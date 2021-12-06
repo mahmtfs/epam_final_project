@@ -5,7 +5,7 @@ import requests
 from flask import flash, redirect, url_for, Blueprint, render_template, request, session
 from flask_mail import Message
 from app.extensions import mail
-from config import RESET_PASSWORD_MESSAGE, RESET_PASSWORD_WARNING, SECRET_KEY, URL, ADMIN_ROLE_ID, REGULAR_ROLE_ID
+from config import RESET_PASSWORD_MESSAGE, RESET_PASSWORD_WARNING, SECRET_KEY, URL, ADMIN_ROLE_ID
 from app.views.forms import (RegistrationForm,
                              LoginForm,
                              RequestForm,
