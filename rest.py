@@ -483,13 +483,18 @@ def create_request():
         return make_response('Insufficient data in request', 400)
     data = request.get_json()
 
-    new_req = Request(sender=data['sender'],
+    reqs = Request.query.all()
+    ids = [req.id for req in reqs]
+    req_id = max(ids) + 1
+
+    new_req = Request(id=req_id,
+                      sender=data['sender'],
                       change_department_id=data['change_department_id'],
                       increase_salary=data['increase_salary'],
                       status=0)
     db.session.add(new_req)
     db.session.commit()
-    return jsonify({'message': 'new request created'})
+    return jsonify({'id': req_id})
 
 
 @app.route('/req/<int:req_id>', methods=['PATCH'])
