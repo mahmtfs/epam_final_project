@@ -24,11 +24,6 @@ Main libraries used:
 2. Flask-Admin - to make a comfortable admin panel
 3. Flask-Migrate - for handling database migrations
 
-## Main use
-
-To see what you can do with web application you can see documentation 
-[SRS.md](https://github.com/Mykhailo-Musiienko/epam_project/blob/master/documentation/SRS.md)
-
 ---
 
 # Requirements
