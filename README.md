@@ -55,7 +55,7 @@ with command **cd** and run appication using **gunicorn** that was in
 requirements.txt
 
 ```commandline
-cd epam_project     
+cd epam_final_project     
 gunicorn -c gunicorn.py.ini rest:app
 ```
 
