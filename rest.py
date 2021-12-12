@@ -229,6 +229,7 @@ def get_all_departments():
         dep_data = dict()
         dep_data['id'] = departments.id
         dep_data['title'] = departments.title
+        dep_data['salary'] = dep.salary
         dep_data['employees'] = []
         for emp in departments.employees:
             emp_data = dict()
@@ -247,6 +248,7 @@ def get_all_departments():
             dep_data = dict()
             dep_data['id'] = dep.id
             dep_data['title'] = dep.title
+            dep_data['salary'] = dep.salary
             dep_data['employees'] = []
             for emp in dep.employees:
                 emp_data = dict()
