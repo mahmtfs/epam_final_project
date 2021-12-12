@@ -293,7 +293,7 @@ def send_request():
                 response_change_dep = requests.get(f'{URL}/deps',
                                                    json={'token': session['token'],
                                                          'filter': f'title="{form.change_department.data}"'})
-                change_department = response_change_dep.json()['departments']['id']
+                change_department = response_change_dep.json()['departments'][0]['id']
             else:
                 change_department = 0
             if form.increase_salary.data:
