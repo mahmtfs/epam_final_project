@@ -229,7 +229,7 @@ def get_all_departments():
         dep_data = dict()
         dep_data['id'] = departments.id
         dep_data['title'] = departments.title
-        dep_data['salary'] = dep.salary
+        dep_data['salary'] = departments.salary
         dep_data['employees'] = []
         for emp in departments.employees:
             emp_data = dict()
