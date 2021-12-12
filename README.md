@@ -10,7 +10,7 @@ The connection between front-end and back-end is done with REST-API.
 With this application you can:
 
 * interact with database
-* create, read, update and delete departments, employees and requests(special models created for communication between regular users and admins)
+* create, read, update and delete departments, employees and requests (special models created for communication between regular users and admins)
 * search departments, employees and requests by name
 * count average salary among all employees in every department
 * make REST-API requests
@@ -48,7 +48,7 @@ git clone git@github.com:mahmtfs/epam_final_project.git
 ```
 
 # Running the application
-Before running the application make sure that you have installed everything from requirements.txt(it is explained in the section "Requirements")
+Before running the application make sure that you have installed everything from requirements.txt (it is explained in the section "Requirements")
 
 To run this application you should go to the directory of this project 
 with command **cd** and run appication using **gunicorn** that was in
@@ -87,13 +87,13 @@ Here are all api endpoints with their methods:
 * http://127.0.0.1:5000/emp/<email> methods: GET
     * get an employee with **email**
 * http://127.0.0.1:5000/emp methods: POST
-	* create an emloyee
+    * create an emloyee
 * http://127.0.0.1:5000/emp/<emp_id> methods: PATCH
-	* update an employee with **emp_id**
+    * update an employee with **emp_id**
 * http://127.0.0.1:5000/emp/<emp_id> methods: DELETE
-	* delete an employee with **emp_id**
+    * delete an employee with **emp_id**
 * http://127.0.0.1:5000/emps/search/<que> methods: GET
-	* get an employee by searching with query **que**
+    * get an employee by searching with query **que**
 ---
 * http://127.0.0.1:5000/deps methods: GET
     * list all departments
@@ -102,29 +102,29 @@ Here are all api endpoints with their methods:
 * http://127.0.0.1:5000/dep/<title> methods: GET
     * get a department with **title**
 * http://127.0.0.1:5000/dep methods: POST
-	* create a department
+    * create a department
 * http://127.0.0.1:5000/dep/<dep_id> methods: PATCH
-	* update a department with **dep_id**
+    * update a department with **dep_id**
 * http://127.0.0.1:5000/dep/<dep_id> methods: DELETE
-	* delete a department with **dep_id**
+    * delete a department with **dep_id**
 * http://127.0.0.1:5000/deps/search/<que> methods: GET
-	* get a department by searching with query **que**
+    * get a department by searching with query **que**
 ---
 * http://127.0.0.1:5000/reqs methods: GET
     * list all requests
 * http://127.0.0.1:5000/req/<req_id> methods: GET
     * get a request with **req_id**
 * http://127.0.0.1:5000/req methods: POST
-	* create a request
+    * create a request
 * http://127.0.0.1:5000/req/<req_id> methods: PATCH
-	* update a request with **req_id**
+    * update a request with **req_id**
 
 ### To make a request to http://127.0.0.1:5000/api_login you need to add credentials in json format:
 
 ```commandline
 {
     "email": "email@email.com"
-	"password": "password"
+    "password": "password"
 }
 ```
 
@@ -154,10 +154,10 @@ Here are all api endpoints with their methods:
 ```commandline
 {
     "token": "token"
-	//not necessary
-	"password": "new password"
-	"department_id": "new department id"
-	"salary": "new salary"
+    //not necessary
+    "password": "new password"
+    "department_id": "new department id"
+    "salary": "new salary"
 }
 ```
 
@@ -174,8 +174,8 @@ Here are all api endpoints with their methods:
 ```commandline
 {
     "token": "token"
-	//not necessary
-	"title": "new title"
+    //not necessary
+    "title": "new title"
 }
 ```
 
