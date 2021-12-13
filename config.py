@@ -5,6 +5,7 @@ import secrets
 DEBUG = False
 TESTING = False
 SECRET_KEY = 'dopy'
+SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
 MAIL_SERVER = 'smtp.gmail.com'
 MAIL_PORT = 465
