@@ -37,14 +37,14 @@ To download everything from there you can type:
 pip install -r requirements.txt
 ```
 
-# Instalation
+# Installation
 
 ---
 
 ### To install current project you can click on the button "Code" and download it with
 
 ```commandline
-git clone git@github.com:mahmtfs/epam_final_project.git
+git clone https://github.com/mahmtfs/epam_final_project.git
 ```
 
 # Running the application
