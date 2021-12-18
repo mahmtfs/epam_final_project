@@ -1,3 +1,4 @@
+import requests
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.fields.html5 import DateField
@@ -24,7 +25,7 @@ class RegistrationForm(FlaskForm):
 
     def validate_email(self, email):
         #employee = Employee.query.filter_by(email=email.data).first()
-        response = requests.get(f'{URL}/emp/{form.email.data}',
+        response = requests.get(f'{URL}/emp/{email}',
                                 json={'token': None})
         if response.status_code == 200:
             raise ValidationError('The user with this email already exists. Try to log in.')
@@ -45,7 +46,7 @@ class RequestResetForm(FlaskForm):
 
     def validate_email(self, email):
         #employee = Employee.query.filter_by(email=email.data).first()
-        response = requests.get(f'{URL}/emp/{form.email.data}',
+        response = requests.get(f'{URL}/emp/{email}',
                                 json={'token': None})
         if response.status_code != 200:
             raise ValidationError('There is no account with such email. There may be a typo.')
