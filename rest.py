@@ -9,7 +9,7 @@ from app.models.models import (Employee,
                                Department,
                                Request)
 
-
+#validate token function (makes bad response if not valid, makes ok response if valid)
 def validate_token(token):
     if not token:
         return make_response('there is no token', 400)
@@ -19,7 +19,7 @@ def validate_token(token):
         return make_response('token invalid', 401)
     return make_response('token is valid', 200)
 
-
+#emps endpoint responds with json list of all employees
 @app.route('/emps', methods=['GET'])
 def get_all_employees():
     if not request.json:
@@ -46,7 +46,7 @@ def get_all_employees():
         output.append(emp_data)
     return jsonify({'users': output})
 
-
+#emp endpoint responds with json dictionary of data about the employee with emp_id
 @app.route('/emp/<int:emp_id>', methods=['GET'])
 def get_employee(emp_id):
     if not request.json:
@@ -76,7 +76,7 @@ def get_employee(emp_id):
 
     return jsonify({'user': emp_data})
 
-
+#emp endpoint responds with json dictionary of data about the employee with email 
 @app.route('/emp/<email>', methods=['GET'])
 def get_employee_email(email):
     if not request.json:
@@ -105,7 +105,7 @@ def get_employee_email(email):
 
     return jsonify({'user': emp_data})
 
-
+#emp endpoint with POST request adds new employee to database
 @app.route('/emp', methods=['POST'])
 def create_employee():
     if not request.json:
@@ -134,7 +134,7 @@ def create_employee():
     db.session.commit()
     return jsonify({'message': 'new employee created'})
 
-
+#emp endpoint with PATCH request updates the employee with emp_id
 @app.route('/emp/<int:emp_id>', methods=['PATCH'])
 def patch_employee(emp_id):
     if not request.json:
@@ -160,7 +160,7 @@ def patch_employee(emp_id):
     db.session.commit()
     return jsonify({'message': 'Employee updated'})
 
-
+#emp endpoint with DELETE request deletes the employee with emp_id from the database
 @app.route('/emp/<int:emp_id>', methods=['DELETE'])
 def delete_employee(emp_id):
     if not request.json:
@@ -179,7 +179,7 @@ def delete_employee(emp_id):
     db.session.commit()
     return jsonify({'message': 'Employee deleted'})
 
-
+#emps endpoint with search request filters out certain employees by 'filter' from the request
 @app.route('/emps/search/<que>', methods=['GET'])
 def search_emps(que):
     if not request.json:
@@ -208,7 +208,7 @@ def search_emps(que):
         output.append(emp_data)
     return jsonify({'users': output})
 
-
+#deps endpoint responds with json list of all departments
 @app.route('/deps', methods=['GET'])
 def get_all_departments():
     if not request.json:
@@ -264,7 +264,7 @@ def get_all_departments():
             output.append(dep_data)
     return jsonify({'departments': output})
 
-
+#dep endpoint responds with json dictionary of data about the department with dep_id
 @app.route('/dep/<int:dep_id>', methods=['GET'])
 def get_department(dep_id):
     if not request.json:
@@ -298,7 +298,7 @@ def get_department(dep_id):
         dep_data['employees'].append(emp_data)
     return jsonify({'department': dep_data})
 
-
+#dep endpoint responds with json dictionary of data about the department with title 
 @app.route('/dep/<title>', methods=['GET'])
 def get_department_title(title):
     if not request.json:
@@ -332,7 +332,7 @@ def get_department_title(title):
         dep_data['employees'].append(emp_data)
     return jsonify({'department': dep_data})
 
-
+#dep endpoint with POST request adds new department to database
 @app.route('/dep', methods=['POST'])
 def create_department():
     if not request.json:
@@ -358,7 +358,7 @@ def create_department():
     db.session.commit()
     return make_response('Department created', 201)
 
-
+#dep endpoint with PATCH request updates the department with dep_id
 @app.route('/dep/<int:dep_id>', methods=['PATCH'])
 def patch_department(dep_id):
     if not request.json:
@@ -379,7 +379,7 @@ def patch_department(dep_id):
     db.session.commit()
     return jsonify({'message': 'Department updated'})
 
-
+#dep endpoint with DELETE request deletes the department with dep_id from the database
 @app.route('/dep/<int:dep_id>', methods=['DELETE'])
 def delete_department(dep_id):
     if not request.json:
@@ -398,7 +398,7 @@ def delete_department(dep_id):
     db.session.commit()
     return jsonify({'message': 'Department deleted'})
 
-
+#deps endpoint with search request filters out certain employees by 'que' from the request
 @app.route('/deps/search/<que>', methods=['GET'])
 def search_deps(que):
     if not request.json:
@@ -422,7 +422,7 @@ def search_deps(que):
         output.append(dep_data)
     return jsonify({'departments': output})
 
-
+#reqs endpoint responds with json list of all requests
 @app.route('/reqs', methods=['GET'])
 def requests_list():
     if not request.json:
@@ -455,7 +455,7 @@ def requests_list():
         output.append(req_data)
     return jsonify({'reqs': output})
 
-
+#req endpoint responds with json dictionary of data about the request with req_id
 @app.route('/req/<int:req_id>', methods=['GET'])
 def get_request(req_id):
     if not request.json:
@@ -479,7 +479,7 @@ def get_request(req_id):
 
     return jsonify({'req': req_data})
 
-
+#req endpoint with POST request adds new request to database
 @app.route('/req', methods=['POST'])
 def create_request():
     if not request.json:
@@ -509,7 +509,7 @@ def create_request():
     db.session.commit()
     return jsonify({'id': req_id})
 
-
+#req endpoint with PATCH request updates the request with req_id
 @app.route('/req/<int:req_id>', methods=['PATCH'])
 def patch_request(req_id):
     if not request.json:
@@ -531,7 +531,7 @@ def patch_request(req_id):
     db.session.commit()
     return jsonify({'message': 'Request updated'})
 
-
+#api_login endpoint verifies the credentials provided in the request to this endpoint
 @app.route('/api_login', methods=['GET', 'POST'])
 def login():
     if not request.json:
@@ -559,7 +559,7 @@ def login():
 
     return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
-
+#api_register endpoint validates the data provided in the request to this endpoint and add a new user with provided data to the database
 @app.route('/api_register', methods=['GET', 'POST'])
 def register():
     if not request.json:
