@@ -19,7 +19,7 @@ from app.views.forms import (RegistrationForm,
 auth = Blueprint('auth', __name__)
 general = Blueprint('general', __name__)
 
-
+#token validation function, returns false if invalid and true if valid
 def validate_token():
     if 'token' not in session:
         return False
@@ -36,9 +36,10 @@ def validate_token():
                                    SECRET_KEY, algorithm='HS256')
     return True
 
-
+#register view requests list of departments from certain api endpoint and posts register info to another api endpoint which registers the user
 @auth.route('/register', methods=['POST', 'GET'])
 def register():
+    #logged in users can't access this view
     if validate_token():
         flash('You are already logged in', 'info')
         return redirect(url_for('general.departments_page'))
@@ -61,9 +62,10 @@ def register():
             flash(response.reason)
     return render_template('register.html', title='Registration Page', form=form)
 
-
+#login view posts login form info to certain api endpoint which checks for the user in the database
 @auth.route('/login', methods=['POST', 'GET'])
 def login():
+    #logged in users can't access this view
     if validate_token():
         flash('You are already logged in', 'info')
         return redirect(url_for('general.departments_page'))
@@ -87,9 +89,10 @@ def login():
             flash('Login unsuccessful. There may be a typo.', 'danger')
     return render_template('login.html', title='Login Page', form=form)
 
-
+#logout view logs out the user by popping the data about the user from the session
 @auth.route('/logout')
 def logout():
+    #anonimous users can't access this view
     if not validate_token():
         flash('You should be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
@@ -99,9 +102,10 @@ def logout():
     session.pop('role_id', None)
     return redirect(url_for('general.departments_page'))
 
-
+#profile view requests data about the user from certain api endpoint and displays it
 @auth.route('/profile')
 def profile():
+    #anonimous users can't access this view
     if not validate_token():
         flash('You need to be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
@@ -120,7 +124,7 @@ def profile():
                            employee=response_emp.json()['user'],
                            department=response_dep.json()['department'])
 
-
+#send reset-password email function
 def send_reset_email(employee):
     token = get_reset_token(employee)
     msg = Message('Password Reset Request',
@@ -129,12 +133,12 @@ def send_reset_email(employee):
                                                 _external=True) + RESET_PASSWORD_WARNING
     mail.send(msg)
 
-
+#the function generates the token for reset-password session (in 10 minutes the user won't be able to change password, another request needs to be made)
 def get_reset_token(employee, expires_sec=1800):
     s = Serializer(SECRET_KEY, expires_sec)
     return s.dumps({'employee_id': employee['id']}).decode('utf-8')
 
-
+#the function verifies the reset-password token
 def verify_reset_token(token):
     s = Serializer(SECRET_KEY)
     try:
@@ -145,9 +149,10 @@ def verify_reset_token(token):
                                 json={'token': None})
     return response_emp.json()['user']
 
-
+#reset-password view provides a form where email needs to be submitted 
 @auth.route('/reset-password', methods=['POST', 'GET'])
 def reset_request():
+    #logged in users can't access this view
     if validate_token():
         return redirect(url_for('general.departments_page'))
     form = RequestResetForm()
@@ -160,9 +165,10 @@ def reset_request():
         return redirect(url_for('auth.login'))
     return render_template('reset_request.html', title='Reset Password', form=form)
 
-
+#reset-password view with generated reset token provides a form where new password needs to be submitted 
 @auth.route('/reset-password/<token>', methods=['POST', 'GET'])
 def reset_token(token):
+    #logged in users can't access this view
     if validate_token():
         return redirect(url_for('general.departments_page'))
     employee = verify_reset_token(token)
@@ -181,9 +187,10 @@ def reset_token(token):
         return redirect(url_for('auth.login'))
     return render_template('reset_token.html', title='Reset Token', form=form)
 
-
+#main view lists all the departments
 @general.route('/', methods=['POST', 'GET'])
 def departments_page():
+    #anonimous users can't access this view
     if not validate_token():
         return redirect(url_for('auth.login'))
     form = SearchDepartmentForm()
@@ -216,9 +223,10 @@ def departments_page():
                            form=form,
                            departments=deps)
 
-
+#department view lists all the employees in the department with department_id
 @general.route('/department/<int:department_id>', methods=['POST', 'GET'])
 def department_page(department_id):
+    #anonimous users can't access this view
     if not validate_token():
         flash('You need to be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
@@ -239,9 +247,10 @@ def department_page(department_id):
                            employees=employees,
                            form=form)
 
-
+#employee view displays the info about the employee with employee_id (if employee_id is the same as current_user_id the user is redirected to profile page)
 @general.route('/employee/<int:employee_id>')
 def employee_page(employee_id):
+    #anonimous users can't access this view
     if not validate_token():
         return redirect(url_for('auth.login'))
     if 'token' in session:
@@ -262,17 +271,19 @@ def employee_page(employee_id):
                            employee=response_emp.json()["user"],
                            department=response_dep.json()["department"])
 
-
+#about view provides a brief information about the project
 @general.route('/about')
 def about_page():
     return render_template('about.html', title='About Page')
 
-
+#send-request view provides a form for sending change-profile requests 
 @general.route('/send-request', methods=['POST', 'GET'])
 def send_request():
+    #anonimous users can't access this view
     if not validate_token():
         flash('You need to be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
+    #admins can't access this view because they don't need to request their changes because they are admins
     if session['role_id'] == ADMIN_ROLE_ID:
         flash('Only regular users can request changes.', 'warning')
         return redirect(url_for('general.departments_page'))
@@ -314,9 +325,10 @@ def send_request():
             flash('You need to request at least one change to send the request!', 'warning')
     return render_template('request_form.html', title='Send Request Page', form=form)
 
-
+#requests view lists all the requests sent by the user (if we look from regular users view) and all the unprocessed requests (if we look from admin's view)
 @general.route('/requests', methods=['POST', 'GET'])
 def requests_page():
+    #anonimous users can't access this view
     if not validate_token():
         flash('You need to be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
@@ -355,9 +367,10 @@ def requests_page():
                            form=form,
                            requests=requests_list)
 
-
+#request view provides the information about the request with request_id
 @general.route('/request/<int:request_id>', methods=['POST', 'GET'])
 def request_page(request_id):
+    #anonimous users can't access this view
     if not validate_token():
         flash('You need to be logged in to access this page', 'info')
         return redirect(url_for('auth.login'))
