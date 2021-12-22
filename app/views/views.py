@@ -178,7 +178,7 @@ def reset_token(token):
     form = ResetPasswordForm()
     if form.validate_on_submit():
         response = requests.patch(f'{URL}/emp/{employee["id"]}',
-                                  json={'token': None,
+                                  json={'token': '',
                                         'password': form.password.data})
         if response.status_code != 200:
             flash('Something went wrong', 'danger')
