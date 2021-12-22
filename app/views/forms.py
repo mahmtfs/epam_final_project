@@ -27,7 +27,7 @@ class RegistrationForm(FlaskForm):
     #the function validates the email submitted by the user in the registration form
     def validate_email(self, email):
         #employee = Employee.query.filter_by(email=email.data).first()
-        response = requests.get(f'{URL}/emp/{email}',
+        response = requests.get(f'{URL}/emp/{email.data}',
                                 json={'token': ''})
         #if the user with such email already exists, an error occurs
         if response.status_code == 200:
@@ -50,7 +50,7 @@ class RequestResetForm(FlaskForm):
     #the function validates the email submitted by the user in the reset-password form
     def validate_email(self, email):
         #employee = Employee.query.filter_by(email=email.data).first()
-        response = requests.get(f'{URL}/emp/{email}',
+        response = requests.get(f'{URL}/emp/{email.data}',
                                 json={'token': ''})
         #if the user with such email doesn't exist, an error occurs
         if response.status_code != 200:
