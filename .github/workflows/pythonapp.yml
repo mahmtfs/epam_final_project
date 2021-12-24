@@ -64,16 +64,8 @@ jobs:
             python -m pip install --upgrade pip
             pip install -r requirements.txt
       - name: Create local database
-        env:
-            DATABASE_URL: local
         run: |
-            sudo apt-get update
-            sudo apt-get install -y postgresql postgresql-client libpq-dev
-            sudo -u postgres psql -d template1
-            CREATE USER runner WITH PASSWORD '$password' CREATEDB;
-            CREATE DATABASE test_db OWNER runner;
-            \q
-            psql -U runner -h localhost -d test_db -W
+            sudo service postgresql status
       - name: Run the app in local env
         run: |
             python3 rest.py
