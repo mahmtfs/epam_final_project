@@ -4,7 +4,7 @@ import secrets
 
 DEBUG = False
 TESTING = False
-SECRET_KEY = 'dopy'
+SECRET_KEY = os.getenv('SECRET_KEY')
 SQLALCHEMY_DATABASE_URI = f'postgresql{os.getenv("DATABASE_URL")[8:]}'
 
 
