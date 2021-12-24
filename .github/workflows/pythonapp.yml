@@ -65,7 +65,7 @@ jobs:
             pip install -r requirements.txt
       - name: Create local database
         run: |
-            psql -h postgres -U postgres_user -c 'CREATE DATABASE "test_db";'
+            psql -h localhost -U postgres_user -c 'CREATE DATABASE "test_db";'
       - name: Run the app in local env
         run: |
             python3 rest.py
