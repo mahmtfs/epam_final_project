@@ -24,6 +24,7 @@ jobs:
           DATABASE_URL: local
       run: |
         sudo apt-get -y install postgresql
+        su - postgres
     - name: Run the app in local env
       run: |
         python3 rest.py
