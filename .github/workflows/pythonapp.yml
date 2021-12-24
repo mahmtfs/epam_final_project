@@ -3,37 +3,80 @@ name: Python application
 on: [push]
 
 jobs:
-  build:
+  postgres-job:
+      # containers must run in Linux based operating systems
+      runs-on: ubuntu-latest
+      # Docker Hub image that `postgres-job` executes in
+      container: node:latest
 
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v2
-    - run: |
-        git fetch --prune --unshallow
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Create local database
-      env:
-          DATABASE_URL: local
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y postgresql postgresql-client libpq-dev
-        sudo -u postgres psql -d template1
-        CREATE USER runner WITH PASSWORD '$password' CREATEDB;
-        CREATE DATABASE test_db OWNER runner;
-        \q
-        psql -U runner -h localhost -d test_db -W
-    - name: Run the app in local env
-      run: |
-        python3 rest.py
-    - name: Lauch tests
-      
-      run: |
-        pytest
+      # service containers to run with `postgres-job`
+      services:
+        # label used to access the service container
+        postgres:
+          # Docker Hub image
+          image: postgres:latest
+          # service environment variables
+          # `POSTGRES_HOST` is `postgres`
+          env:
+            # optional (defaults to `postgres`)
+            POSTGRES_DB: postgres_db
+            # required
+            POSTGRES_PASSWORD: postgres_password
+            # optional (defaults to `5432`)
+            POSTGRES_PORT: 5432
+            # optional (defaults to `postgres`)
+            POSTGRES_USER: postgres_user
+          ports:
+            # maps tcp port 5432 on service container to the host
+            - 5432:5432
+          # set health checks to wait until postgres has started
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+
+      steps:
+        - name: Install PostgreSQL client
+          run: |
+            apt-get update
+            apt-get install --yes postgresql-client
+
+        # queries database with postgres client
+        - name: Query database
+          run: psql -h postgres -d postgres_db -U postgres_user -c 'SELECT 1;'
+          env:
+            # postgress password is required; alternatively, you can run:
+            # `PGPASSWORD=postgres_password psql ...`
+            PGPASSWORD: postgres_password
+  build:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v2
+      - run: |
+            git fetch --prune --unshallow
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+            python-version: 3.8
+      - name: Install dependencies
+        run: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+      - name: Create local database
+        env:
+            DATABASE_URL: local
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y postgresql postgresql-client libpq-dev
+            sudo -u postgres psql -d template1
+            CREATE USER runner WITH PASSWORD '$password' CREATEDB;
+            CREATE DATABASE test_db OWNER runner;
+            \q
+            psql -U runner -h localhost -d test_db -W
+      - name: Run the app in local env
+        run: |
+            python3 rest.py
+      - name: Lauch tests
+        run: |
+            pytest
