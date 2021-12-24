@@ -6,7 +6,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v2
     - run: |
@@ -19,9 +19,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Create local database
+      env:
+          DATABASE_URL: local
     - name: Run the app in local env
       run: |
         python3 rest.py
     - name: Lauch tests
+      
       run: |
         pytest
