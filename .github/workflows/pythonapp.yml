@@ -25,8 +25,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install postgresql postgresql-contrib
-        postgres -D /usr/local/pgsql/data
-        sudo -u postgres psql template1
+        sudo su - postgres
+        psql
     - name: Run the app in local env
       run: |
         python3 rest.py
