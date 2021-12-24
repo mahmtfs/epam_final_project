@@ -22,6 +22,8 @@ jobs:
     - name: Create local database
       env:
           DATABASE_URL: local
+      run: |
+        sudo apt-get -y install postgresql
     - name: Run the app in local env
       run: |
         python3 rest.py
