@@ -2,13 +2,10 @@ name: Python application
 
 on: [push]
 
-jobs:
-  postgres-job:
-      # containers must run in Linux based operating systems
+jobs:    
+  build:
       runs-on: ubuntu-latest
-      # Docker Hub image that `postgres-job` executes in
       container: node:latest
-
       # service containers to run with `postgres-job`
       services:
         # label used to access the service container
@@ -35,23 +32,19 @@ jobs:
             --health-interval 10s
             --health-timeout 5s
             --health-retries 5
-
       steps:
-        - name: Install PostgreSQL client
-          run: |
-            apt-get update
-            apt-get install --yes postgresql-client
+      - name: Install PostgreSQL client
+        run: |
+          apt-get update
+          apt-get install --yes postgresql-client
 
         # queries database with postgres client
-        - name: Query database
-          run: psql -h postgres -d postgres_db -U postgres_user -c 'SELECT 1;'
-          env:
-            # postgress password is required; alternatively, you can run:
-            # `PGPASSWORD=postgres_password psql ...`
-            PGPASSWORD: postgres_password
-  build:
-      runs-on: ubuntu-latest
-      steps:
+      - name: Query database
+        run: psql -h postgres -d postgres_db -U postgres_user -c 'SELECT 1;'
+        env:
+          # postgress password is required; alternatively, you can run:
+          # `PGPASSWORD=postgres_password psql ...`
+          PGPASSWORD: postgres_password
       - uses: actions/checkout@v2
       - run: |
             git fetch --prune --unshallow
