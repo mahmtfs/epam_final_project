@@ -2,10 +2,35 @@ name: Python application
 
 on: [push]
 
-jobs:    
+jobs:
   build:
-      runs-on: ubuntu-latest
-      steps:
+    container: gradle:jdk11
+    runs-on: ubuntu-latest
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends postgresql-client
+      - run: |
+          psql -h postgres -U postgres -c 'CREATE DATABASE "test_db";'
+          
       - uses: actions/checkout@v2
       - run: |
             git fetch --prune --unshallow
