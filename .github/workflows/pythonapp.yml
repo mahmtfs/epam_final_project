@@ -24,12 +24,12 @@ jobs:
           DATABASE_URL: local
       run: |
         sudo apt-get update
-        sudo apt-get install postgresql postgresql-contrib
-        ps -ef | grep postgres
-        sudo su - postgres
-        ps -ef | grep postgres
-        sudo service postgresql start
-        psql
+        sudo apt-get install -y postgresql postgresql-client libpq-dev
+        sudo -u postgres psql -d template1
+        CREATE USER runner WITH PASSWORD '$password' CREATEDB;
+        CREATE DATABASE test_db OWNER runner;
+        \q
+        psql -U runner -h localhost -d test_db -W
     - name: Run the app in local env
       run: |
         python3 rest.py
