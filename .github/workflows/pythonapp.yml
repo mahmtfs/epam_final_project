@@ -26,7 +26,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install postgresql postgresql-contrib
         ps -ef | grep postgres
-        su - postgres
+        sudo su - postgres
         ps -ef | grep postgres
         sudo service postgresql start
         psql
