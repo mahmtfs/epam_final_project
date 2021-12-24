@@ -25,7 +25,6 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install postgresql postgresql-contrib
-        sudo service postgresql status
         ps -ef | grep postgres
         su - postgres
         ps -ef | grep postgres
