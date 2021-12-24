@@ -24,6 +24,7 @@ jobs:
           DATABASE_URL: local
       run: |
         sudo apt-get -y install postgresql
+        ps -ef | grep postgres
         sudo -u postgres psql template1
     - name: Run the app in local env
       run: |
