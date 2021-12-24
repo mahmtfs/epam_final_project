@@ -25,7 +25,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install postgresql postgresql-contrib
-        /etc/init.d/postgresql start
+        /etc/init.d/postgresql restart
         sudo su - postgres
         psql
     - name: Run the app in local env
