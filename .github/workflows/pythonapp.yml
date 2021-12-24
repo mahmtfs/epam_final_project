@@ -23,7 +23,8 @@ jobs:
       env:
           DATABASE_URL: local
       run: |
-        sudo apt-get -y install postgresql
+        sudo apt-get update
+        sudo apt-get install postgresql postgresql-contrib
         postgres -D /usr/local/pgsql/data
         sudo -u postgres psql template1
     - name: Run the app in local env
