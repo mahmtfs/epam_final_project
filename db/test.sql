@@ -25,6 +25,7 @@ DROP TABLE IF EXISTS `department`;
 CREATE TABLE `department` (
   `id` int NOT NULL AUTO_INCREMENT,
   `title` varchar(50) NOT NULL,
+  'salary' float,
   PRIMARY KEY (`id`),
   UNIQUE KEY `title` (`title`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -36,7 +37,7 @@ CREATE TABLE `department` (
 
 LOCK TABLES `department` WRITE;
 /*!40000 ALTER TABLE `department` DISABLE KEYS */;
-INSERT INTO `department` VALUES (4,'Backend Developer'),(3,'Communications Dispatch'),(6,'Design'),(5,'Frontend Developer'),(2,'Human resources'),(7,'Management');
+INSERT INTO `department` VALUES (4,'Backend Developer', 300.0),(3,'Communications Dispatch', 500.0),(6,'Design', 100.0),(5,'Frontend Developer',123.2),(2,'Human resources',3333.2),(7,'Management',33.1);
 /*!40000 ALTER TABLE `department` ENABLE KEYS */;
 UNLOCK TABLES;
 
