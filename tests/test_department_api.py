@@ -15,7 +15,7 @@ client = app.test_client()
 
 def test_post():
     try:
-        response = client.post(f'{URL}/dep', json={'token': token,
+        response = client.post(f'/dep', json={'token': token,
                                                      'title': 'test',
                                                      'salary': 300.0})
         assert response.status_code == 201
@@ -27,7 +27,7 @@ def test_post():
 
 def test_get():
     try:
-        response = client.get(f'{URL}/dep/test', json={'token': token})
+        response = client.get(f'/dep/test', json={'token': token})
         global dep_id
         dep_id = response.json()['department']['id']
         assert response.status_code == 200
@@ -39,7 +39,7 @@ def test_get():
 
 def test_patch():
     try:
-        response = client.patch(f'{URL}/dep/{dep_id}', json={'token': token,
+        response = client.patch(f'/dep/{dep_id}', json={'token': token,
                                                                'title': 'test2'})
         assert response.status_code == 200
     except Exception as e:
@@ -50,7 +50,7 @@ def test_patch():
 
 def test_get_fail():
     try:
-        response = client.get(f'{URL}/dep/0', json={'token': token})
+        response = client.get(f'/dep/0', json={'token': token})
         assert response.status_code == 404
     except Exception as e:
         logger.error(f'Login test failed ({type(e).__name__}:{e})')
@@ -60,7 +60,7 @@ def test_get_fail():
 
 def test_delete():
     try:
-        response = client.delete(f'{URL}/dep/{dep_id}', json={'token': token})
+        response = client.delete(f'/dep/{dep_id}', json={'token': token})
         assert response.status_code == 200
     except Exception as e:
         logger.error(f'Delete test failed ({type(e).__name__}:{e})')
@@ -70,7 +70,7 @@ def test_delete():
 
 def test_get_departments():
     try:
-        response = client.get(f'{URL}/deps',
+        response = client.get(f'/deps',
                                 json={'token': token})
         assert response.status_code == 200
     except Exception as e:
