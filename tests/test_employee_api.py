@@ -30,12 +30,12 @@ def test_login():
     try:
         response = client.post(f'{URL}/api_login', json={'email': 'test@gmail.com',
                                                            'password': 'test'})
-        if 'token' in response.json():
+        if 'token' in response.json:
             global token
             global emp_id
             emp_id = response.json['current_user_id']
             token = response.json['token']
-        assert 'token' in response.json()
+        assert 'token' in response.json
     except Exception as e:
         logger.error(f'Login test failed ({type(e).__name__}:{e})')
         print(f'Login test failed ({type(e).__name__}:{e})')
