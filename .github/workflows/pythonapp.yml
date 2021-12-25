@@ -10,6 +10,7 @@ jobs:
       DB_USER: root
       DB_PASSWORD: root
       DATABASE_URL: mysql:/root:root@127.0.0.1:3306/test_db
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
     steps:
       - uses: actions/checkout@v2
       - run: |
