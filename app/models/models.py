@@ -3,6 +3,7 @@ import requests
 
 
 class Employee(db.Model):
+    "employee model"
     __tablename__ = 'employee'
     __searchable__ = ['firstname', 'lastname']
 
@@ -18,6 +19,7 @@ class Employee(db.Model):
 
 
 class Department(db.Model):
+    "department model"
     __tablename__ = 'department'
     __searchable__ = ['title']
 
@@ -35,12 +37,14 @@ class Department(db.Model):
 
 
 class Role(db.Model):
+    "role model (regular user, admin...)"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     employees = db.relationship('Employee', backref='role', lazy=True)
 
 
 class Request(db.Model):
+    "request model"
     id = db.Column(db.Integer, primary_key=True)
     sender = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
     #recipient = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
