@@ -16,7 +16,7 @@ client = app.test_client()
 def test_post():
     try:
         response = client.post(f'{URL}/req', json={'token': token,
-                                                     'sender': 2,
+                                                     'sender': 5,
                                                      'change_department_id': 1,
                                                      'increase_salary': 20})
         global req_id
