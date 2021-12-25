@@ -236,8 +236,8 @@ def department_page(department_id):
     if form.search.data:
         response_emps = requests.get(f'{URL}/emps/search/{form.search.data}',
                                      json={'token': session['token'],
-                                           'filter': f'or_(Employee.firstname.contains("{form.search.data}"),'
-                                                     f' Employee.lastname.contains("{form.search.data}")),'
+                                           'filter': f'or_(Employee.firstname.ilike("%{form.search.data}%"),'
+                                                     f' Employee.lastname.ilike("%{form.search.data}%")),'
                                                      f' Employee.department_id == {department_id}'})
         employees = response_emps.json()['users']
     else:
@@ -337,8 +337,8 @@ def requests_page():
         if session['role_id'] == ADMIN_ROLE_ID:
             response_reqs = requests.get(f'{URL}/reqs',
                                          json={'token': session['token'],
-                                               'filter': f'or_(Employee.firstname.contains("{form.search.data}"),'
-                                                         f' Employee.lastname.contains("{form.search.data}")),'
+                                               'filter': f'or_(Employee.firstname.ilike("%{form.search.data}%"),'
+                                                         f' Employee.lastname.ilike("%{form.search.data}%")),'
                                                          f' Request.status == 0,'
                                                          f' Employee.id == Request.sender'})
 
@@ -346,8 +346,8 @@ def requests_page():
         else:
             response_reqs = requests.get(f'{URL}/reqs',
                                          json={'token': session['token'],
-                                               'filter': f'or_(Employee.firstname.contains("{form.search.data}"),'
-                                                         f' Employee.lastname.contains("{form.search.data}")),'
+                                               'filter': f'or_(Employee.firstname.ilike("%{form.search.data}%"),'
+                                                         f' Employee.lastname.ilike("%{form.search.data}%")),'
                                                          f' {session["current_user_id"]} == Request.sender,'
                                                          f' Employee.id == {session["current_user_id"]}'})
     else:
