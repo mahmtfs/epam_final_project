@@ -14,6 +14,7 @@ client = app.test_client()
 
 
 def test_post():
+    "testing department creation"
     try:
         response = client.post(f'/dep', json={'token': token,
                                                      'title': 'test',
@@ -26,6 +27,7 @@ def test_post():
 
 
 def test_get():
+    "testing department reading by title"
     try:
         response = client.get(f'/dep/test', json={'token': token})
         global dep_id
@@ -38,6 +40,7 @@ def test_get():
 
 
 def test_patch():
+    "testing department updating"
     try:
         response = client.patch(f'http://127.0.0.1:5000/dep/{dep_id}', json={'token': token,
                                                                'title': 'test2'})
@@ -49,6 +52,7 @@ def test_patch():
 
 
 def test_get_fail():
+    "testing department reading failure"
     try:
         response = client.get(f'http://127.0.0.1:5000/dep/0', json={'token': token})
         assert response.status_code == 404
@@ -59,6 +63,7 @@ def test_get_fail():
 
 
 def test_delete():
+    "testing department deleting"
     try:
         response = client.delete(f'http://127.0.0.1:5000/dep/{dep_id}', json={'token': token})
         assert response.status_code == 200
@@ -69,6 +74,7 @@ def test_delete():
 
 
 def test_get_departments():
+    "testing departments listing"
     try:
         response = client.get(f'/deps',
                                 json={'token': token})
