@@ -4,9 +4,9 @@ import jwt
 import datetime
 from app import app
 from logger.logs import logger
-from config import URL
 
 
+URL = 'localhost:5000'
 dep_id = None
 token = jwt.encode({'id': 1, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)},
                    app.config['SECRET_KEY'], algorithm='HS256')
