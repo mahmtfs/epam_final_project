@@ -24,13 +24,13 @@ class RegistrationForm(FlaskForm):
                              validators=[DataRequired()])
     submit = SubmitField('Sign Up')
     
-    #the function validates the email submitted by the user in the registration form
     def validate_email(self, email):
+        "the function validates the email submitted by the user in the registration form"
         #employee = Employee.query.filter_by(email=email.data).first()
         response = requests.get(f'{URL}/emp/{email.data}',
                                 json={'token': ''})
-        #if the user with such email already exists, an error occurs
         if response.status_code == 200:
+            "if the user with such email already exists, an error occurs"
             raise ValidationError('The user with this email already exists. Try to log in.')
 
 
@@ -47,13 +47,13 @@ class RequestResetForm(FlaskForm):
                         validators=[DataRequired(), Email()])
     submit = SubmitField('Request Password Reset')
     
-    #the function validates the email submitted by the user in the reset-password form
     def validate_email(self, email):
+        "the function validates the email submitted by the user in the reset-password form"
         #employee = Employee.query.filter_by(email=email.data).first()
         response = requests.get(f'{URL}/emp/{email.data}',
                                 json={'token': ''})
-        #if the user with such email doesn't exist, an error occurs
         if response.status_code != 200:
+            "if the user with such email doesn't exist, an error occurs"
             raise ValidationError('There is no account with such email. There may be a typo.')
 
 
