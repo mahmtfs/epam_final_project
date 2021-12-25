@@ -5,7 +5,10 @@ import secrets
 DEBUG = False
 TESTING = False
 SECRET_KEY = os.getenv('SECRET_KEY')
-SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")#f'postgresql{os.getenv("DATABASE_URL")[8:]}'
+if (os.getenv("DATABASE_URL")[0] == 'm'):
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+else:
+    SQLALCHEMY_DATABASE_URI = f'postgresql{os.getenv("DATABASE_URL")[8:]}'
 
 
 MAIL_SERVER = 'smtp.gmail.com'
