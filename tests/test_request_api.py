@@ -20,7 +20,7 @@ def test_post():
                                                      'change_department_id': 1,
                                                      'increase_salary': 20})
         global req_id
-        #req_id = response.json['id']
+        req_id = response.json['id']
         assert response.status_code == 200
     except Exception as e:
         logger.error(f'Login test failed ({type(e).__name__}:{e})')
