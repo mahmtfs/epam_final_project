@@ -408,7 +408,7 @@ def search_deps(que):
     valid = validate_token(request.json['token'])
     if valid.status_code != 200:
         return make_response(valid.response, valid.status_code)
-    departments = Department.query.filter(Department.title.contains(que)).all()
+    departments = Department.query.filter(Department.title.ilike(f'%{que}%')).all()
     output = []
     for dep in departments:
         dep_data = dict()
