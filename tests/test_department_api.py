@@ -2,7 +2,7 @@ import requests
 import pytest
 import jwt
 import datetime
-from app import app
+from rest import app
 from logger.logs import logger
 
 
