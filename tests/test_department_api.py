@@ -6,7 +6,7 @@ from app import app
 from logger.logs import logger
 
 
-URL = 'localhost:5000'
+URL = ''
 dep_id = None
 token = jwt.encode({'id': 1, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)},
                    app.config['SECRET_KEY'], algorithm='HS256')
