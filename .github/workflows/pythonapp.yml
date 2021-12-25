@@ -28,7 +28,8 @@ jobs:
             sudo /etc/init.d/mysql start
             mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
             mysql -h localhost -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }} test_db < db/test.sql
-            mysql -e 'SELECT * FROM employee;' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+            
+            mysql -e 'USE test_db; SELECT * FROM employee;' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
       - name: Lauch tests
         run: |
             pytest
