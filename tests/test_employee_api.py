@@ -11,6 +11,7 @@ URL = ''
 
 
 def test_register():
+    "testing registration"
     try:
         response = client.post(f'{URL}/api_register',
                                  json={'firstname': 'test',
@@ -27,6 +28,7 @@ def test_register():
     
     
 def test_login():
+    "testing logging in"
     try:
         response = client.post(f'{URL}/api_login', json={'email': 'test@gmail.com',
                                                            'password': 'test'})
@@ -43,6 +45,7 @@ def test_login():
 
 
 def test_patch():
+    "testing employee updating"
     try:
         response = client.patch(f'{URL}/emp/{emp_id}', json={'token': token,
                                                                'password': 'test2'})
@@ -54,6 +57,7 @@ def test_patch():
 
 
 def test_login_fail():
+    "testing logging in failure"
     try:
         response = client.post(f'{URL}/api_login', json={'email': 'test@gmail.com',
                                                            'password': 'test'})
@@ -65,6 +69,7 @@ def test_login_fail():
 
 
 def test_delete():
+    "testing employee deleting"
     try:
         response = client.delete(f'{URL}/emp/{emp_id}', json={'token': token})
         assert response.status_code == 200
@@ -75,6 +80,7 @@ def test_delete():
 
 
 def test_get_employees():
+    "testing employees listing"
     try:
         response = client.get(f'{URL}/emps',
                                 json={'token': token})
