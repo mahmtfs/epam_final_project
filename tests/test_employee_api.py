@@ -1,16 +1,18 @@
 import requests
 import pytest
+from rest import app
 from logger.logs import logger
-from config import URL
 
 
 token = None
 emp_id = None
+client = app.test_client()
+URL = ''
 
 
 def test_register():
     try:
-        response = requests.post(f'{URL}/api_register',
+        response = client.post(f'{URL}/api_register',
                                  json={'firstname': 'test',
                                        'lastname': 'test',
                                        'email': 'test@gmail.com',
@@ -26,7 +28,7 @@ def test_register():
     
 def test_login():
     try:
-        response = requests.post(f'{URL}/api_login', json={'email': 'test@gmail.com',
+        response = client.post(f'{URL}/api_login', json={'email': 'test@gmail.com',
                                                            'password': 'test'})
         if 'token' in response.json():
             global token
@@ -42,7 +44,7 @@ def test_login():
 
 def test_patch():
     try:
-        response = requests.patch(f'{URL}/emp/{emp_id}', json={'token': token,
+        response = client.patch(f'{URL}/emp/{emp_id}', json={'token': token,
                                                                'password': 'test2'})
         assert response.status_code == 200
     except Exception as e:
@@ -53,7 +55,7 @@ def test_patch():
 
 def test_login_fail():
     try:
-        response = requests.post(f'{URL}/api_login', json={'email': 'test@gmail.com',
+        response = client.post(f'{URL}/api_login', json={'email': 'test@gmail.com',
                                                            'password': 'test'})
         assert response.status_code == 401
     except Exception as e:
@@ -64,7 +66,7 @@ def test_login_fail():
 
 def test_delete():
     try:
-        response = requests.delete(f'{URL}/emp/{emp_id}', json={'token': token})
+        response = client.delete(f'{URL}/emp/{emp_id}', json={'token': token})
         assert response.status_code == 200
     except Exception as e:
         logger.error(f'Delete test failed ({type(e).__name__}:{e})')
@@ -74,7 +76,7 @@ def test_delete():
 
 def test_get_employees():
     try:
-        response = requests.get(f'{URL}/emps',
+        response = client.get(f'{URL}/emps',
                                 json={'token': token})
         assert response.status_code == 200
     except Exception as e:
