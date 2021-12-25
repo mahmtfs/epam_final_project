@@ -14,6 +14,7 @@ client = app.test_client()
 
 
 def test_post():
+    "testing request creating"
     try:
         response = client.post(f'{URL}/req', json={'token': token,
                                                      'sender': 5,
@@ -29,6 +30,7 @@ def test_post():
 
 
 def test_get():
+    "testing request reading"
     try:
         response = client.get(f'{URL}/req/{req_id}', json={'token': token})
         assert response.status_code == 200
@@ -39,6 +41,7 @@ def test_get():
 
 
 def test_patch():
+    "testing request updating"
     try:
         response = client.patch(f'{URL}/req/{req_id}', json={'token': token,
                                                                'status': 2})
@@ -50,6 +53,7 @@ def test_patch():
 
 
 def test_get_fail():
+    "testing request reading failure"
     try:
         response = client.get(f'{URL}/req/0', json={'token': token})
         assert response.status_code == 404
@@ -60,6 +64,7 @@ def test_get_fail():
 
 
 def test_get_requests():
+    "testing requests listing"
     try:
         response = client.get(f'{URL}/reqs', json={'token': token})
         assert response.status_code == 200
