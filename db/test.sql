@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `department`;
 CREATE TABLE `department` (
   `id` int NOT NULL AUTO_INCREMENT,
   `title` varchar(50) NOT NULL,
-  'salary' float,
+  `salary` float DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `title` (`title`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
