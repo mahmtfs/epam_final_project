@@ -29,7 +29,7 @@ def test_get():
     try:
         response = client.get(f'/dep/test', json={'token': token})
         global dep_id
-        dep_id = response.json()['department']['id']
+        dep_id = response.json['department']['id']
         assert response.status_code == 200
     except Exception as e:
         logger.error(f'Login test failed ({type(e).__name__}:{e})')
