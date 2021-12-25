@@ -27,7 +27,7 @@ jobs:
         run: |
             sudo /etc/init.d/mysql start
             mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
-            mysql -u ${{ env.DB_USER }} -p ${{ env.DB_PASSWORD }} test_db < db/test.sql
+            mysql  -h localhost -u ${{ env.DB_USER }} test_db < db/test.sql
       - name: Lauch tests
         run: |
             pytest
